@@ -5,12 +5,80 @@ serviceName="torrserver" # имя службы: systemctl status torrserver.serv
 scriptname=$(basename "$(test -L "$0" && readlink "$0" || echo -e "$0")")
 declare -A colors=( [black]=0 [red]=1 [green]=2 [yellow]=3 [blue]=4 [magenta]=5 [cyan]=6 [white]=7 )
 
+# Global variables for version handling
+specificVersion=""
+
+# Constants
+readonly REPO_URL="https://github.com/YouROK/TorrServer"
+readonly REPO_API_URL="https://api.github.com/repos/YouROK/TorrServer"
+readonly VERSION_PREFIX="MatriX"
+readonly BINARY_NAME_PREFIX="TorrServer-linux"
+readonly MIN_GLIBC_VERSION="2.32"
+readonly MIN_VERSION_REQUIRING_GLIBC=136
+readonly DEFAULT_PORT="8090"
+
 #################################
 #       F U N C T I O N S       #
 #################################
 
 colorize() {
     printf "%s%s%s" "$(tput setaf "${colors[$1]:-7}")" "$2" "$(tput op)"
+}
+
+# Utility functions to reduce code duplication
+function getBinaryName() {
+  echo "${BINARY_NAME_PREFIX}-${architecture}"
+}
+
+function getVersionTag() {
+  local version="$1"
+  echo "${VERSION_PREFIX}.${version}"
+}
+
+function buildDownloadUrl() {
+  local target_version="$1"
+  local binary_name="$2"
+
+  if [[ "$target_version" == "latest" ]]; then
+    echo "${REPO_URL}/releases/latest/download/${binary_name}"
+  else
+    echo "${REPO_URL}/releases/download/${target_version}/${binary_name}"
+  fi
+}
+
+function downloadBinary() {
+  local url="$1"
+  local destination="$2"
+  local version_info="$3"
+
+  [[ $lang == "en" ]] && echo -e " - Downloading TorrServer $version_info..." || echo -e " - Загружаем TorrServer $version_info..."
+  curl -L --progress-bar -# -o "$destination" "$url"
+  chmod +x "$destination"
+}
+
+function showVersionError() {
+  local version="$1"
+  [[ $lang == "en" ]] && {
+    echo -e " - $(colorize red ERROR): Version $version not found in releases"
+    echo -e " - Please check available versions at: $REPO_URL/releases"
+  } || {
+    echo -e " - $(colorize red ОШИБКА): Версия $version не найдена в релизах"
+    echo -e " - Проверьте доступные версии по адресу: $REPO_URL/releases"
+  }
+}
+
+function showGlibcError() {
+  local target_version="$1"
+  local current_glibc="$2"
+  [[ $lang == "en" ]] && {
+    echo -e " - $(colorize red ERROR): TorrServer version $target_version requires glibc >= $MIN_GLIBC_VERSION"
+    echo -e " - Your system has glibc $current_glibc"
+    echo -e " - Please install a version < $MIN_VERSION_REQUIRING_GLIBC or upgrade your system"
+  } || {
+    echo -e " - $(colorize red ОШИБКА): TorrServer версии $target_version требует glibc >= $MIN_GLIBC_VERSION"
+    echo -e " - В вашей системе установлена glibc $current_glibc"
+    echo -e " - Пожалуйста, установите версию < $MIN_VERSION_REQUIRING_GLIBC или обновите систему"
+  }
 }
 
 function isRoot() {
@@ -22,7 +90,7 @@ function isRoot() {
 function addUser() {
   if isRoot; then
     [[ $username == "root" ]] && return 0
-    egrep "^$username" /etc/passwd >/dev/null
+    grep -E "^$username" /etc/passwd >/dev/null
     if [ $? -eq 0 ]; then
       [[ $lang == "en" ]] && echo -e " - $username user exists!" || echo -e " - пользователь $username найден!"
       return 0
@@ -41,9 +109,9 @@ function addUser() {
 function delUser() {
   if isRoot; then
     [[ $username == "root" ]] && return 0
-    egrep "^$username" /etc/passwd >/dev/null
+    grep -E "^$username" /etc/passwd >/dev/null
     if [ $? -eq 0 ]; then
-      userdel --remove "$username" 2>/dev/null # --force 
+      userdel --remove "$username" 2>/dev/null # --force
       [ $? -eq 0 ] && {
         [[ $lang == "en" ]] && echo -e " - User $username has been removed from system!" || echo -e " - Пользователь $username удален!"
       } || {
@@ -67,7 +135,11 @@ function getLang() {
 }
 
 function getIP() {
-  [ -z "`which dig`" ] && serverIP=$(host myip.opendns.com resolver1.opendns.com | tail -n1 | cut -d' ' -f4-) || serverIP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+  if command -v dig >/dev/null 2>&1; then
+    serverIP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+  else
+    serverIP=$(host myip.opendns.com resolver1.opendns.com | tail -n1 | cut -d' ' -f4-)
+  fi
   # echo $serverIP
 }
 
@@ -114,16 +186,120 @@ function cleanAll() { # guess other installs
   rm -f /{,etc,usr/local/lib}/systemd/system/tor{,r,rserver}.service 2>/dev/null
 }
 
+function getGlibcVersion() {
+    local glibc_version
+
+    # Try ldd --version (most reliable)
+    if command -v ldd >/dev/null 2>&1; then
+        glibc_version=$(ldd --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+        if [[ -n "$glibc_version" ]]; then
+            echo "$glibc_version"
+            return 0
+        fi
+    fi
+
+    # Try getconf GNU_LIBC_VERSION
+    if command -v getconf >/dev/null 2>&1; then
+        glibc_version=$(getconf GNU_LIBC_VERSION 2>/dev/null | grep -oE '[0-9]+\.[0-9]+')
+        if [[ -n "$glibc_version" ]]; then
+            echo "$glibc_version"
+            return 0
+        fi
+    fi
+
+    # Try rpm package manager
+    if command -v rpm >/dev/null 2>&1; then
+        glibc_version=$(rpm -q glibc 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+        if [[ -n "$glibc_version" ]]; then
+            echo "$glibc_version"
+            return 0
+        fi
+    fi
+
+    # Try dpkg package manager
+    if command -v dpkg >/dev/null 2>&1; then
+        glibc_version=$(dpkg -l libc6 2>/dev/null | awk '/^ii/ {print $3}' | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+        if [[ -n "$glibc_version" ]]; then
+            echo "$glibc_version"
+            return 0
+        fi
+    fi
+
+    # If all methods fail, return empty
+    return 1
+}
+
+function compareVersions() {
+  # Compare version strings using sort -V (version sort)
+  # Returns 0 if $1 >= $2, 1 otherwise
+  local ver1="$1"
+  local ver2="$2"
+
+  # Use sort -V for proper version comparison
+  local sorted_first=$(printf '%s\n' "$ver1" "$ver2" | sort -V | head -n1)
+
+  # If ver2 comes first in sorted order, then ver1 >= ver2
+  [[ "$sorted_first" == "$ver2" ]]
+}
+
+function checkGlibcCompatibility() {
+  local target_version="$1"
+  local version_number
+
+  # Extract numeric version from version string (e.g., "MatriX.136" -> "136")
+  if [[ "$target_version" =~ ${VERSION_PREFIX}\.([0-9]+) ]]; then
+    version_number="${BASH_REMATCH[1]}"
+  elif [[ "$target_version" =~ ^[0-9]+$ ]]; then
+    version_number="$target_version"
+  else
+    [[ $lang == "en" ]] && echo -e " - Warning: Could not parse version number from $target_version" || echo -e " - Предупреждение: Не удалось извлечь номер версии из $target_version"
+    return 0  # Assume compatible if we can't parse
+  fi
+
+  # Check if version requires glibc 2.32+
+  if [[ $version_number -ge $MIN_VERSION_REQUIRING_GLIBC ]]; then
+    local current_glibc=$(getGlibcVersion)
+
+    if [[ -z "$current_glibc" ]]; then
+      [[ $lang == "en" ]] && {
+        echo -e " - Warning: Could not detect glibc version"
+        echo -e " - TorrServer version $target_version requires glibc >= $MIN_GLIBC_VERSION"
+        echo -e " - Installation may fail if your system doesn't meet this requirement"
+      } || {
+        echo -e " - Предупреждение: Не удалось определить версию glibc"
+        echo -e " - TorrServer версии $target_version требует glibc >= $MIN_GLIBC_VERSION"
+        echo -e " - Установка может завершиться неудачей, если система не соответствует требованиям"
+      }
+      return 0  # Continue installation anyway
+    fi
+
+    [[ $lang == "en" ]] && echo -e " - Detected glibc version: $current_glibc" || echo -e " - Обнаружена версия glibc: $current_glibc"
+
+    if ! compareVersions "$current_glibc" "$MIN_GLIBC_VERSION"; then
+      showGlibcError "$target_version" "$current_glibc"
+      return 1
+    fi
+
+    [[ $lang == "en" ]] && echo -e " - $(colorize green OK): glibc version meets requirements for TorrServer $target_version" || echo -e " - $(colorize green OK): версия glibc соответствует требованиям для TorrServer $target_version"
+  else
+    [[ $lang == "en" ]] && echo -e " - TorrServer version $target_version: no special glibc requirements" || echo -e " - TorrServer версии $target_version: нет особых требований к glibc"
+  fi
+
+  return 0
+}
+
 function helpUsage() {
   [[ $lang == "en" ]] && echo -e "$scriptname
-  -i | --install | install - install latest release version
+  -i | --install | install [version] - install latest release version or specific version
+                                       Example: $scriptname --install 135
   -u | --update  | update  - install latest update (if any)
   -c | --check   | check   - check update (show only version info)
   -d | --down    | down    - version downgrade, need version number as argument
   -r | --remove  | remove  - uninstall TorrServer
   -h | --help    | help    - this help screen
 " || echo -e "$scriptname
-  -i | --install | install - установка последней версии
+  -i | --install | install [версия] - установка последней версии или указанной версии
+                                      Пример: $scriptname --install 135
   -u | --update  | update  - установка последнего обновления, если имеется
   -c | --check   | check   - проверка обновления (выводит только информацию о версиях)
   -d | --down    | down    - понизить версию, после опции указывается версия для понижения
@@ -132,83 +308,133 @@ function helpUsage() {
 "
 }
 
+# Helper function to show OS version error messages
+function showOSVersionError() {
+  local os_name="$1"
+  local supported_versions="$2"
+
+  [[ $lang == "en" ]] && {
+    echo -e " Your $os_name version is not supported."
+    echo -e ""
+    echo -e " Script supports only $os_name $supported_versions"
+    echo -e ""
+  } || {
+    echo -e " Ваша версия $os_name не поддерживается."
+    echo -e ""
+    echo -e " Скрипт поддерживает только $os_name $supported_versions"
+    echo -e ""
+  }
+  exit 1
+}
+
+# Helper function to detect package manager for RPM-based systems
+function getRpmPackageManager() {
+  local version_id="$1"
+
+  # Check if version_id is numeric and >= 8, then prefer dnf
+  if [[ "$version_id" =~ ^[0-9]+$ ]] && [[ $version_id -ge 8 ]] && command -v dnf >/dev/null 2>&1; then
+    echo "dnf"
+  elif command -v dnf >/dev/null 2>&1; then
+    echo "dnf"
+  else
+    echo "yum"
+  fi
+}
+
+# Helper function to validate and handle RPM-based OS versions
+function handleRpmBasedOS() {
+  local os_id="$1"
+  local os_name="$2"
+  local supported_versions="$3"
+  local version_id="$4"
+
+  # Extract major version number (e.g., "8.4" -> "8", "9.6" -> "9")
+  local major_version=$(echo "$version_id" | cut -d '.' -f1)
+
+  # Validate version
+  if [[ ! $major_version =~ ^($supported_versions)$ ]]; then
+    showOSVersionError "$os_name" "версии $supported_versions"
+  fi
+
+  # Get package manager and install packages
+  local pkg_manager=$(getRpmPackageManager "$major_version")
+  installRpmPackages "$pkg_manager"
+}
+
+# Helper function to install RPM packages
+function installRpmPackages() {
+  local pkg_manager="$1"
+  local packages=('curl' 'iputils' 'bind-utils')
+
+  for pkg in "${packages[@]}"; do
+    [ -z "$(rpm -qa "$pkg")" ] && $pkg_manager -y install "$pkg"
+  done
+}
+
 function checkOS() {
   if [[ -e /etc/debian_version ]]; then
     OS="debian"
     PKGS='curl iputils-ping dnsutils'
     source /etc/os-release
+
     if [[ $ID == "debian" || $ID == "raspbian" ]]; then
       if [[ $VERSION_ID -lt 6 ]]; then
-        echo -e " Ваша версия Debian не поддерживается."
-        echo -e ""
-        echo -e " Скрипт поддерживает только Debian >=6"
-        echo -e ""
-        exit 1
+        showOSVersionError "Debian" ">=6"
       fi
     elif [[ $ID == "ubuntu" ]]; then
       OS="ubuntu"
       MAJOR_UBUNTU_VERSION=$(echo -e "$VERSION_ID" | cut -d '.' -f1)
       if [[ $MAJOR_UBUNTU_VERSION -lt 10 ]]; then
-        echo -e " Ваша версия Ubuntu не поддерживается."
-        echo -e ""
-        echo -e " Скрипт поддерживает только Ubuntu >=10"
-        echo -e ""
-        exit 1
+        showOSVersionError "Ubuntu" ">=10"
       fi
     fi
+
     if ! dpkg -s $PKGS >/dev/null 2>&1; then
       [[ $lang == "en" ]] && echo -e " Installing missing packages…" || echo -e " Устанавливаем недостающие пакеты…"
       sleep 1
       apt -y install $PKGS
     fi
+
   elif [[ -e /etc/system-release ]]; then
     source /etc/os-release
+
     if [[ $ID == "fedora" || $ID_LIKE == "fedora" ]]; then
       OS="fedora"
-      [ -z "$(rpm -qa curl)" ] && yum -y install curl
-      [ -z "$(rpm -qa iputils)" ] && yum -y install iputils
-    fi
-    if [[ $ID == "centos" || $ID == "rocky" || $ID == "redhat" ]]; then
+      # Fedora doesn't need strict version validation, but we'll use consistent approach
+      local pkg_manager=$(getRpmPackageManager "$(echo "$VERSION_ID" | cut -d '.' -f1)")
+      installRpmPackages "$pkg_manager"
+
+    elif [[ $ID == "centos" || $ID == "rocky" || $ID == "redhat" ]]; then
       OS="centos"
-      if [[ ! $VERSION_ID =~ (6|7|8) ]]; then
-        echo -e " Ваша версия CentOS/RockyLinux/RedHat не поддерживается."
-        echo -e ""
-        echo -e " Скрипт поддерживает только CentOS/RockyLinux/RedHat версии 6,7 и 8."
-        echo -e ""
-        exit 1
-      fi
-      [ -z "$(rpm -qa curl)" ] && yum -y install curl
-      [ -z "$(rpm -qa iputils)" ] && yum -y install iputils
-    fi
-    if [[ $ID == "ol" ]]; then
+      handleRpmBasedOS "$ID" "CentOS/RockyLinux/RedHat" "6|7|8|9" "$VERSION_ID"
+
+    elif [[ $ID == "ol" ]]; then
       OS="oracle"
-      if [[ ! $VERSION_ID =~ (6|7|8) ]]; then
-        echo -e " Ваша версия Oracle Linux не поддерживается."
-        echo -e ""
-        echo -e " Скрипт поддерживает только Oracle Linux версии 6,7 и 8."
-        exit 1
-      fi
-      [ -z "$(rpm -qa curl)" ] && yum -y install curl
-      [ -z "$(rpm -qa iputils)" ] && yum -y install iputils
-    fi
-    if [[ $ID == "amzn" ]]; then
+      handleRpmBasedOS "$ID" "Oracle Linux" "6|7|8|9" "$VERSION_ID"
+
+    elif [[ $ID == "amzn" ]]; then
       OS="amzn"
       if [[ $VERSION_ID != "2" ]]; then
-        echo -e " Ваша версия Amazon Linux не поддерживается."
-        echo -e ""
-        echo -e " Скрипт поддерживает только Amazon Linux 2."
-        echo -e ""
-        exit 1
+        showOSVersionError "Amazon Linux" "2"
       fi
-      [ -z "$(rpm -qa curl)" ] && yum -y install curl
-      [ -z "$(rpm -qa iputils)" ] && yum -y install iputils
+      # Amazon Linux 2 uses yum specifically
+      installRpmPackages "yum"
     fi
+
   elif [[ -e /etc/arch-release ]]; then
     OS=arch
-    [ -z $(pacman -Qqe curl 2>/dev/null) ] &&  pacman -Sy --noconfirm curl
-    [ -z $(pacman -Qqe iputils 2>/dev/null) ] &&  pacman -Sy --noconfirm iputils
+    PKGS_ARCH=('curl' 'iputils' 'bind-tools')
+
+    for pkg in "${PKGS_ARCH[@]}"; do
+      [ -z $(pacman -Qqe "$pkg" 2>/dev/null) ] && pacman -Sy --noconfirm "$pkg"
+    done
+
   else
-    echo -e " Похоже, что вы запускаете этот установщик в системе отличной от Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux или Arch Linux."
+    [[ $lang == "en" ]] && {
+      echo -e " It looks like you are running this installer on a system other than Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux or Arch Linux."
+    } || {
+      echo -e " Похоже, что вы запускаете этот установщик в системе отличной от Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux или Arch Linux."
+    }
     exit 1
   fi
 }
@@ -226,7 +452,10 @@ function checkArch() {
 }
 
 function checkInternet() {
-  [ -z "`which ping`" ] && echo -e " Сначала установите iputils-ping" && exit 1
+  if ! command -v ping >/dev/null 2>&1; then
+    [[ $lang == "en" ]] && echo -e " Please install iputils-ping first" || echo -e " Сначала установите iputils-ping"
+    exit 1
+  fi
   [[ $lang == "en" ]] && echo -e " Check Internet access…" || echo -e " Проверяем соединение с Интернетом…"
   if ! ping -c 2 google.com &> /dev/null; then
     [[ $lang == "en" ]] && echo -e " - No Internet. Check your network and DNS settings." || echo -e " - Нет Интернета. Проверьте ваше соединение, а также разрешение имен DNS."
@@ -247,13 +476,48 @@ function initialCheck() {
 }
 
 function getLatestRelease() {
-  curl -s "https://api.github.com/repos/YouROK/TorrServer/releases/latest" |
+  curl -s "${REPO_API_URL}/releases/latest" |
   grep -iE '"tag_name":|"version":' |
   sed -E 's/.*"([^"]+)".*/\1/'
 }
 
+function getSpecificRelease() {
+  local version="$1"
+  # Check if the version exists in releases
+  local tag_name=$(getVersionTag "$version")
+  local response=$(curl -s "${REPO_API_URL}/releases/tags/$tag_name")
+
+  if echo "$response" | grep -q '"tag_name"'; then
+    echo "$tag_name"
+  else
+    echo ""
+  fi
+}
+
+function getTargetVersion() {
+  if [[ -n "$specificVersion" ]]; then
+    local target_release=$(getSpecificRelease "$specificVersion")
+    if [[ -z "$target_release" ]]; then
+      showVersionError "$specificVersion"
+      exit 1
+    fi
+    echo "$target_release"
+  else
+    getLatestRelease
+  fi
+}
+
 function installTorrServer() {
   [[ $lang == "en" ]] && echo -e " Install and configure TorrServer…" || echo -e " Устанавливаем и настраиваем TorrServer…"
+
+  # Get target version and check glibc compatibility
+  local target_version=$(getTargetVersion)
+  [[ $lang == "en" ]] && echo -e " - Target version: $target_version" || echo -e " - Целевая версия: $target_version"
+
+  if ! checkGlibcCompatibility "$target_version"; then
+    exit 1
+  fi
+
   if checkInstalled; then
     if ! checkInstalledVersion; then
       [[ $lang == "en" ]] && read -p " Want to update TorrServer? ($(colorize green Y)es/$(colorize yellow N)o) " answer_up </dev/tty || read -p " Хотите обновить TorrServer? ($(colorize green Y)es/$(colorize yellow N)o) " answer_up </dev/tty
@@ -262,13 +526,21 @@ function installTorrServer() {
       fi
     fi
   fi
-  binName="TorrServer-linux-${architecture}"
+
+  binName=$(getBinaryName)
   [[ ! -d "$dirInstall" ]] && mkdir -p ${dirInstall}
   [[ ! -d "/usr/local/lib/systemd/system" ]] && mkdir -p "/usr/local/lib/systemd/system"
-  urlBin="https://github.com/YouROK/TorrServer/releases/latest/download/${binName}"
+
+  # Build URL and download binary
+  local urlBin
+  if [[ -n "$specificVersion" ]]; then
+    urlBin=$(buildDownloadUrl "$target_version" "$binName")
+  else
+    urlBin=$(buildDownloadUrl "latest" "$binName")
+  fi
+
   if [[ ! -f "$dirInstall/$binName" ]] | [[ ! -x "$dirInstall/$binName" ]] || [[ $(stat -c%s "$dirInstall/$binName" 2>/dev/null) -eq 0 ]]; then
-    curl -L --progress-bar -# -o "$dirInstall/$binName" "$urlBin"
-    chmod +x "$dirInstall/$binName"
+    downloadBinary "$urlBin" "$dirInstall/$binName" "$target_version"
   fi
   cat << EOF > $dirInstall/$serviceName.service
     [Unit]
@@ -300,7 +572,7 @@ EOF
       [[ $lang == "en" ]] && read -p " Enter port number: " answer_port </dev/tty || read -p " Введите номер порта: " answer_port </dev/tty
       servicePort=$answer_port
     else
-      servicePort="8090"
+      servicePort="$DEFAULT_PORT"
     fi
   }
   [ -z $isAuth ] && {
@@ -368,15 +640,16 @@ EOF
   systemctl enable $serviceName.service 2>/dev/null # enable --now
   systemctl restart $serviceName.service 2>/dev/null
   getIP
+  local installed_version=$(getTargetVersion)
   [[ $lang == "en" ]] && {
     echo -e ""
-    echo -e " TorrServer $(getLatestRelease) installed to ${dirInstall}"
+    echo -e " TorrServer $installed_version installed to ${dirInstall}"
     echo -e ""
     echo -e " You can now open your browser at http://${serverIP}:${servicePort} to access TorrServer web GUI."
     echo -e ""
   } || {
     echo -e ""
-    echo -e " TorrServer $(getLatestRelease) установлен в директории ${dirInstall}"
+    echo -e " TorrServer $installed_version установлен в директории ${dirInstall}"
     echo -e ""
     echo -e " Теперь вы можете открыть браузер по адресу http://${serverIP}:${servicePort} для доступа к вебу TorrServer"
     echo -e ""
@@ -391,7 +664,7 @@ function checkInstalled() {
   if ! addUser; then
     username="root"
   fi
-  binName="TorrServer-linux-${architecture}"
+  local binName=$(getBinaryName)
   if [[ -f "$dirInstall/$binName" ]] || [[ $(stat -c%s "$dirInstall/$binName" 2>/dev/null) -ne 0 ]]; then
     [[ $lang == "en" ]] && echo -e " - TorrServer found in $dirInstall" || echo -e " - TorrServer найден в директории $dirInstall"
   else
@@ -401,42 +674,77 @@ function checkInstalled() {
 }
 
 function checkInstalledVersion() {
-  binName="TorrServer-linux-${architecture}"
-  if [[ -z "$(getLatestRelease)" ]]; then
-    [[ $lang == "en" ]] && echo -e " - No update. Can be server issue." || echo -e " - Не найдено обновление. Возможно сервер не доступен."
+  local binName=$(getBinaryName)
+  local target_version=$(getTargetVersion)
+  local installed_version="$($dirInstall/$binName --version 2>/dev/null | awk '{print $2}')"
+
+  if [[ -z "$target_version" ]]; then
+    [[ $lang == "en" ]] && echo -e " - No version information available. Can be server issue." || echo -e " - Информация о версии недоступна. Возможно сервер не доступен."
     exit 1
   fi
-  if [[ "$(getLatestRelease)" == "$($dirInstall/$binName --version 2>/dev/null | awk '{print $2}')" ]]; then
-    [[ $lang == "en" ]] && echo -e " - You have latest TorrServer $(getLatestRelease)" || echo -e " - Установлен TorrServer последней версии $(getLatestRelease)"
+
+  if [[ "$target_version" == "$installed_version" ]]; then
+    if [[ -n "$specificVersion" ]]; then
+      [[ $lang == "en" ]] && echo -e " - You already have TorrServer $target_version installed" || echo -e " - TorrServer $target_version уже установлен"
+    else
+      [[ $lang == "en" ]] && echo -e " - You have latest TorrServer $target_version" || echo -e " - Установлен TorrServer последней версии $target_version"
+    fi
   else
     [[ $lang == "en" ]] && {
-      echo -e " - TorrServer update found!"
-      echo -e "   installed: \"$($dirInstall/$binName --version 2>/dev/null | awk '{print $2}')\""
-      echo -e "   available: \"$(getLatestRelease)\""
+      if [[ -n "$specificVersion" ]]; then
+        echo -e " - Will install TorrServer version $target_version"
+      else
+        echo -e " - TorrServer update found!"
+      fi
+      echo -e "   installed: \"$installed_version\""
+      echo -e "   target: \"$target_version\""
     } || {
-      echo -e " - Доступно обновление сервера"
-      echo -e "   установлен: \"$($dirInstall/$binName --version 2>/dev/null | awk '{print $2}')\""
-      echo -e "   обновление: \"$(getLatestRelease)\""
+      if [[ -n "$specificVersion" ]]; then
+        echo -e " - Будет установлена версия TorrServer $target_version"
+      else
+        echo -e " - Доступно обновление сервера"
+      fi
+      echo -e "   установлен: \"$installed_version\""
+      echo -e "   целевая: \"$target_version\""
     }
     return 1
   fi
 }
 
 function UpdateVersion() {
+  local target_version=$(getTargetVersion)
+
+  if ! checkGlibcCompatibility "$target_version"; then
+    [[ $lang == "en" ]] && echo -e " - Update cancelled due to glibc incompatibility" || echo -e " - Обновление отменено из-за несовместимости glibc"
+    return 1
+  fi
+
   systemctl stop $serviceName.service
-  binName="TorrServer-linux-${architecture}"
-  urlBin="https://github.com/YouROK/TorrServer/releases/latest/download/${binName}"
-  curl -L --progress-bar -# -o "$dirInstall/$binName" "$urlBin"
-  chmod +x "$dirInstall/$binName"
+  local binName=$(getBinaryName)
+
+  local urlBin
+  if [[ -n "$specificVersion" ]]; then
+    urlBin=$(buildDownloadUrl "$target_version" "$binName")
+  else
+    urlBin=$(buildDownloadUrl "latest" "$binName")
+  fi
+
+  downloadBinary "$urlBin" "$dirInstall/$binName" "$target_version"
   systemctl start $serviceName.service
 }
 
 function DowngradeVersion() {
+  local target_version=$(getVersionTag "$downgradeRelease")
+
+  if ! checkGlibcCompatibility "$target_version"; then
+    [[ $lang == "en" ]] && echo -e " - Downgrade cancelled due to glibc incompatibility" || echo -e " - Понижение версии отменено из-за несовместимости glibc"
+    return 1
+  fi
+
   systemctl stop $serviceName.service
-  binName="TorrServer-linux-${architecture}"
-  urlBin="https://github.com/YouROK/TorrServer/releases/download/MatriX.$downgradeRelease/${binName}"
-  curl -L --progress-bar -# -o "$dirInstall/$binName" "$urlBin"
-  chmod +x "$dirInstall/$binName"
+  local binName=$(getBinaryName)
+  local urlBin=$(buildDownloadUrl "$target_version" "$binName")
+  downloadBinary "$urlBin" "$dirInstall/$binName" "$target_version"
   systemctl start $serviceName.service
 }
 #####################################
@@ -445,9 +753,15 @@ function DowngradeVersion() {
 getLang
 case $1 in
   -i|--install|install)
+    # Check if a version number is provided as second argument
+    if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+      specificVersion="$2"
+      [[ $lang == "en" ]] && echo -e " - Installing specific version: $specificVersion" || echo -e " - Установка конкретной версии: $specificVersion"
+    fi
+
     initialCheck
     if ! checkInstalled; then
-      servicePort="8090"
+      servicePort="$DEFAULT_PORT"
       isAuth=0
       isRdb=0
       isLog=0
