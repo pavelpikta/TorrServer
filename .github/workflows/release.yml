@@ -1,0 +1,66 @@
+---
+name: Release
+
+on:
+  push:
+    tags:
+      - "MatriX.*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name to release (required when dispatching manually)"
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      release: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    secrets: inherit
+
+  release:
+    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          pattern: TorrServer-*
+          path: dist
+          merge-multiple: true
+
+      - name: Prepare release metadata
+        id: release_meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -z "${{ inputs.tag_name }}" ]; then
+              echo "Manual dispatch requires the tag_name input." >&2
+              exit 1
+            fi
+            echo "tag=${{ inputs.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/TorrServer-*
+          tag_name: ${{ steps.release_meta.outputs.tag }}
+          name: TorrServer ${{ steps.release_meta.outputs.tag }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

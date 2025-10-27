@@ -1,0 +1,156 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      release:
+        description: "Set to true when running as part of a release workflow to avoid cancelling in-progress builds."
+        required: false
+        type: boolean
+        default: false
+      node_version:
+        description: "Node.js version to use for the web build"
+        required: false
+        type: string
+        default: "22"
+      go_version:
+        description: "Go version to use for the server build"
+        required: false
+        type: string
+        default: "1.24"
+      yarn_version:
+        description: "Yarn version to install"
+        required: false
+        type: string
+        default: "latest"
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Set to true to emulate a release build."
+        required: false
+        type: boolean
+        default: false
+      node_version:
+        description: "Node.js version to use for the web build"
+        required: false
+        type: string
+        default: "22"
+      go_version:
+        description: "Go version to use for the server build"
+        required: false
+        type: string
+        default: "1.24"
+      yarn_version:
+        description: "Yarn version to install"
+        required: false
+        type: string
+        default: "latest"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ (inputs.release && format('release-{0}', github.run_id)) || format('build-{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: ${{ !inputs.release }}
+
+jobs:
+  build:
+    name: Build (${{ matrix.artifact }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux/amd64
+            artifact: linux-amd64
+          - target: linux/arm64
+            artifact: linux-arm64
+          - target: linux/arm7
+            artifact: linux-arm7
+          - target: linux/arm5
+            artifact: linux-arm5
+          - target: linux/386
+            artifact: linux-386
+          - target: linux/mips
+            artifact: linux-mips
+          - target: linux/mipsle
+            artifact: linux-mipsle
+          - target: linux/mips64
+            artifact: linux-mips64
+          - target: linux/mips64le
+            artifact: linux-mips64le
+          - target: linux/riscv64
+            artifact: linux-riscv64
+          - target: windows/amd64
+            artifact: windows-amd64
+          - target: windows/386
+            artifact: windows-386
+          - target: darwin/amd64
+            artifact: darwin-amd64
+          - target: darwin/arm64
+            artifact: darwin-arm64
+          - target: freebsd/amd64
+            artifact: freebsd-amd64
+          - target: freebsd/arm7
+            artifact: freebsd-arm7
+          - target: android/arm7
+            artifact: android-arm7
+            android: true
+          - target: android/arm64
+            artifact: android-arm64
+            android: true
+          - target: android/386
+            artifact: android-386
+            android: true
+          - target: android/amd64
+            artifact: android-amd64
+            android: true
+    env:
+      BUILD_TARGET: ${{ matrix.target }}
+      NODE_VERSION: ${{ inputs.node_version || '22' }}
+      GO_VERSION: ${{ inputs.go_version || '1.24' }}
+      YARN_VERSION: ${{ inputs.yarn_version || 'latest' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Yarn
+        run: npm install -g yarn@${{ env.YARN_VERSION }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: server/go.sum
+
+      - name: Cache Go build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ hashFiles('server/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-
+
+      - name: Download Android NDK
+        if: ${{ matrix.android }}
+        run: |
+          wget -q "https://dl.google.com/android/repository/android-ndk-r25c-linux.zip"
+          unzip -q ./android-ndk-r25c-linux.zip
+          rm ./android-ndk-r25c-linux.zip
+
+      - name: Run build script
+        run: ./build-github.sh
+
+      - name: Upload dist artifacts
+        if: success() || failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: TorrServer-${{ matrix.artifact }}
+          path: dist/TorrServer-${{ matrix.artifact }}*
