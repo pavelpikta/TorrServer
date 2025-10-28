@@ -213,17 +213,20 @@ build_binary() {
     local cgo_enabled="$4"
     local build_type="$5"  # "static", "dynamic", "android", etc.
 
-    local cgo_suffix
-    if [[ "${cgo_enabled}" == "1" ]]; then
-        cgo_suffix="cgo"
+    local bin_filename="${OUTPUT}-${goos}-${goarch}${goarm_suffix}"
+
+    if [[ "${cgo_enabled}" == "1" && "${build_type}" == "dynamic" ]]; then
+        : # dynamic CGO build keeps base name only
     else
-        cgo_suffix="nocgo"
-    fi
+        if [[ "${cgo_enabled}" == "1" ]]; then
+            bin_filename="${bin_filename}-cgo"
+        else
+            bin_filename="${bin_filename}-nocgo"
+        fi
 
-    local bin_filename="${OUTPUT}-${goos}-${goarch}${goarm_suffix}-${cgo_suffix}"
-
-    if [[ -n "${build_type}" ]]; then
-        bin_filename="${bin_filename}-${build_type}"
+        if [[ -n "${build_type}" ]]; then
+            bin_filename="${bin_filename}-${build_type}"
+        fi
     fi
 
     [[ "${goos}" == "windows" ]] && bin_filename="${bin_filename}.exe"
