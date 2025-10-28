@@ -186,6 +186,21 @@ platform_supports_cgo() {
     esac
 }
 
+supports_dynamic_nocgo() {
+    local goos="$1"
+    local goarch="$2"
+
+    if [[ "${goos}" == "linux" ]]; then
+        case "${goarch}" in
+            amd64|arm64)
+                return 0
+                ;;
+        esac
+    fi
+
+    return 1
+}
+
 # Build function for a specific configuration
 build_binary() {
     local goos="$1"
@@ -215,28 +230,35 @@ build_binary() {
     # Configure linking for CGO builds
     if [[ "${cgo_enabled}" == "1" ]]; then
         if [[ "${goos}" == "linux" ]]; then
-            # For Linux with CGO, configure static/dynamic linking
             if [[ "${build_type}" == "static" ]]; then
-                # Static linking with musl or glibc
-                target_ldflags="${target_ldflags} -linkmode=external -extldflags='-static'"
-                # Use musl-gcc if available for better static linking
+                target_ldflags="${target_ldflags} -linkmode=external -extldflags=-static"
                 if command -v musl-gcc >/dev/null 2>&1 && [[ "${goarch}" == "amd64" ]]; then
                     export CC="musl-gcc"
                     log_info "Using musl-gcc for static linking"
                 fi
+
+                if [[ "${ENABLE_STATIC_PIE}" == "true" ]]; then
+                    target_build_flags="${target_build_flags} -buildmode=pie"
+                    target_ldflags="${target_ldflags} -extldflags=-static-pie"
+                fi
+            elif [[ "${build_type}" == "dynamic" ]]; then
+                target_ldflags="${target_ldflags} -linkmode=external"
             else
-                # Dynamic linking
                 target_ldflags="${target_ldflags} -linkmode=external"
             fi
-
-            # Enable static PIE if requested (requires external linker)
-            if [[ "${ENABLE_STATIC_PIE}" == "true" && "${build_type}" == "static" ]]; then
-                target_build_flags="${target_build_flags} -buildmode=pie"
-                target_ldflags="${target_ldflags} -extldflags='-static-pie'"
-            fi
         else
-            # Windows CGO linking
             target_ldflags="${target_ldflags} -linkmode=external"
+        fi
+    else
+        if [[ "${build_type}" == "dynamic" ]]; then
+            target_ldflags="${target_ldflags} -linkmode=external"
+
+            if [[ "${goos}" == "linux" ]]; then
+                target_build_flags="${target_build_flags} -buildmode=pie"
+            else
+                log_warn "Dynamic build without CGO not supported for ${goos}/${goarch}"
+                return 1
+            fi
         fi
     fi
 
@@ -322,25 +344,46 @@ build_platform() {
     if [[ "${build_static}" == "true" ]]; then
         if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "0" "static"; then
             platform_failed=true
-            FAILURES="${FAILURES} ${platform}(static)"
+            FAILURES="${FAILURES} ${platform}(nocgo-static)"
+        fi
+
+        if supports_dynamic_nocgo "${goos}" "${goarch}"; then
+            if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "0" "dynamic"; then
+                platform_failed=true
+                FAILURES="${FAILURES} ${platform}(nocgo-dynamic)"
+            fi
+        else
+            log_info "Skipping nocgo dynamic build for ${platform} (unsupported)"
         fi
     fi
 
     # Build CGO binary (CGO_ENABLED=1)
     if [[ "${build_cgo}" == "true" ]]; then
+        local cross_compiler_ok=false
+
         if setup_cross_compiler "${goos}" "${goarch}" "1"; then
-            # Try static linking first
+            cross_compiler_ok=true
             if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "1" "static"; then
-                log_warn "Static CGO build failed, trying dynamic linking"
-                # Fallback to dynamic linking
-                if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "1" "dynamic"; then
-                    platform_failed=true
-                    FAILURES="${FAILURES} ${platform}(cgo)"
-                fi
+                platform_failed=true
+                FAILURES="${FAILURES} ${platform}(cgo-static)"
             fi
         else
             log_warn "CGO cross-compilation not supported for ${platform}"
             FAILURES="${FAILURES} ${platform}(cgo-unsupported)"
+            platform_failed=true
+        fi
+
+        if [[ "${cross_compiler_ok}" == "true" ]]; then
+            if setup_cross_compiler "${goos}" "${goarch}" "1"; then
+                if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "1" "dynamic"; then
+                    platform_failed=true
+                    FAILURES="${FAILURES} ${platform}(cgo-dynamic)"
+                fi
+            else
+                log_warn "CGO cross-compilation not supported for ${platform} (dynamic)"
+                FAILURES="${FAILURES} ${platform}(cgo-dynamic-unsupported)"
+                platform_failed=true
+            fi
         fi
     fi
 
