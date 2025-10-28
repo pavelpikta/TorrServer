@@ -86,76 +86,76 @@ jobs:
           - target: linux/amd64
             artifact: linux-amd64
             cgo_support: full
-            musl_support: true
+            # musl_support: true
           - target: linux/arm64
             artifact: linux-arm64
             cgo_support: full
-          # - target: linux/arm/7
-          #   artifact: linux-arm7
-          #   cgo_support: full
-          # - target: linux/arm/5
-          #   artifact: linux-arm5
-          #   cgo_support: full
-          # - target: linux/386
-          #   artifact: linux-386
-          #   cgo_support: full
-          # - target: linux/mips
-          #   artifact: linux-mips
-          #   cgo_support: limited
-          # - target: linux/mipsle
-          #   artifact: linux-mipsle
-          #   cgo_support: limited
-          # - target: linux/mips64
-          #   artifact: linux-mips64
-          #   cgo_support: limited
-          # - target: linux/mips64le
-          #   artifact: linux-mips64le
-          #   cgo_support: limited
-          # - target: linux/riscv64
-          #   artifact: linux-riscv64
-          #   cgo_support: limited
+          - target: linux/arm/7
+            artifact: linux-arm7
+            cgo_support: full
+          - target: linux/arm/5
+            artifact: linux-arm5
+            cgo_support: full
+          - target: linux/386
+            artifact: linux-386
+            cgo_support: full
+          - target: linux/mips
+            artifact: linux-mips
+            cgo_support: limited
+          - target: linux/mipsle
+            artifact: linux-mipsle
+            cgo_support: limited
+          - target: linux/mips64
+            artifact: linux-mips64
+            cgo_support: limited
+          - target: linux/mips64le
+            artifact: linux-mips64le
+            cgo_support: limited
+          - target: linux/riscv64
+            artifact: linux-riscv64
+            cgo_support: limited
 
           # Windows platforms
-          # - target: windows/amd64
-          #   artifact: windows-amd64
-          #   cgo_support: full
-          # - target: windows/386
-          #   artifact: windows-386
-          #   cgo_support: full
+          - target: windows/amd64
+            artifact: windows-amd64
+            cgo_support: full
+          - target: windows/386
+            artifact: windows-386
+            cgo_support: full
 
           # Darwin platforms (CGO cross-compilation complex)
-          # - target: darwin/amd64
-          #   artifact: darwin-amd64
-          #   cgo_support: none
-          # - target: darwin/arm64
-          #   artifact: darwin-arm64
-          #   cgo_support: none
+          - target: darwin/amd64
+            artifact: darwin-amd64
+            cgo_support: none
+          - target: darwin/arm64
+            artifact: darwin-arm64
+            cgo_support: none
 
           # # FreeBSD platforms
-          # - target: freebsd/amd64
-          #   artifact: freebsd-amd64
-          #   cgo_support: none
-          # - target: freebsd/arm/7
-          #   artifact: freebsd-arm7
-          #   cgo_support: none
+          - target: freebsd/amd64
+            artifact: freebsd-amd64
+            cgo_support: none
+          - target: freebsd/arm/7
+            artifact: freebsd-arm7
+            cgo_support: none
 
           # Android platforms (always use CGO)
-          # - target: android/arm/7
-          #   artifact: android-arm7
-          #   android: true
-          #   cgo_support: android
-          # - target: android/arm64
-          #   artifact: android-arm64
-          #   android: true
-          #   cgo_support: android
-          # - target: android/386
-          #   artifact: android-386
-          #   android: true
-          #   cgo_support: android
-          # - target: android/amd64
-          #   artifact: android-amd64
-          #   android: true
-          #   cgo_support: android
+          - target: android/arm/7
+            artifact: android-arm7
+            android: true
+            cgo_support: android
+          - target: android/arm64
+            artifact: android-arm64
+            android: true
+            cgo_support: android
+          - target: android/386
+            artifact: android-386
+            android: true
+            cgo_support: android
+          - target: android/amd64
+            artifact: android-amd64
+            android: true
+            cgo_support: android
 
     env:
       BUILD_TARGET: ${{ matrix.target }}
