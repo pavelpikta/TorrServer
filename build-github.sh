@@ -176,7 +176,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
   if [[ "${GOOS}" == "windows" ]]; then BIN_FILENAME="${BIN_FILENAME}.exe"; fi
   TARGET_LDFLAGS="${LDFLAGS}"
   if [[ "${TARGET_CGO_ENABLED}" == "1" ]]; then
-    TARGET_LDFLAGS="${TARGET_LDFLAGS} -extldflags=-Wl,--no-relr"
+    TARGET_LDFLAGS="${TARGET_LDFLAGS} -linkmode=external -extldflags=-Wl,--no-relr"
   fi
   CMD="CGO_ENABLED=${TARGET_CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} CCX=${CCX:-} ${GOBIN} build -ldflags='${TARGET_LDFLAGS}' ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
   echo "${CMD}"
