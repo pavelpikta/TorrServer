@@ -128,7 +128,7 @@ GOBIN="go"
 
 $GOBIN version
 
-LDFLAGS="'-s -w -checklinkname=0'"
+LDFLAGS="-s -w -checklinkname=0"
 FAILURES=""
 ROOT=${PWD}
 OUTPUT="${ROOT}/dist/TorrServer"
@@ -155,8 +155,8 @@ cd "${ROOT}/server" || exit 1
 $GOBIN clean -cache -modcache -i -r
 $GOBIN mod tidy
 
-LDFLAGS="'-s -w -checklinkname=0'"
-BUILD_FLAGS="-ldflags=${LDFLAGS} -tags=nosqlite -trimpath"
+LDFLAGS="-s -w -checklinkname=0"
+BUILD_FLAGS="-tags=nosqlite -trimpath"
 # BUILD_FLAGS=""
 
 for PLATFORM in "${PLATFORMS[@]}"; do
@@ -174,7 +174,11 @@ for PLATFORM in "${PLATFORMS[@]}"; do
   set_cc "${TARGET_CGO_ENABLED}"
   BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
   if [[ "${GOOS}" == "windows" ]]; then BIN_FILENAME="${BIN_FILENAME}.exe"; fi
-  CMD="CGO_ENABLED=${TARGET_CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} CCX=${CCX:-} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+  TARGET_LDFLAGS="${LDFLAGS}"
+  if [[ "${TARGET_CGO_ENABLED}" == "1" ]]; then
+    TARGET_LDFLAGS="${TARGET_LDFLAGS} -extldflags=-Wl,--no-relr"
+  fi
+  CMD="CGO_ENABLED=${TARGET_CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} CCX=${CCX:-} ${GOBIN} build -ldflags='${TARGET_LDFLAGS}' ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
   echo "${CMD}"
   BUILT_ANY=1
   eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
@@ -209,7 +213,8 @@ if should_build_android_section; then
     export CXX="$NDK_TOOLCHAIN/bin/$COMPILER++"
     set_goarm "$GOARCH"
     BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
-    CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} CGO_ENABLED=1 CC=${CC} CCX=${CCX} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+    TARGET_LDFLAGS="${LDFLAGS}"
+    CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} CGO_ENABLED=1 CC=${CC} CCX=${CCX} ${GOBIN} build -ldflags='${TARGET_LDFLAGS}' ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
     echo "${CMD}"
     BUILT_ANY=1
     eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
