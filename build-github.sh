@@ -369,11 +369,13 @@ build_android() {
         fi
 
         local goos="android"
-        local goarch="${goarch_entry%/*}"
+        local goarch="${goarch_entry}"
         local goarm_suffix=""
 
-        if [[ "${goarch_entry}" =~ / ]]; then
-            set_goarm "${goarch_entry}"
+        set_goarm "${goarch_entry}"
+        GO_MIPS=""
+
+        if [[ -n "${GOARM}" ]]; then
             goarch="arm"
             goarm_suffix="${GOARM}"
         fi
