@@ -64,8 +64,9 @@ set_gomips() {
 }
 
 set_cc() {
+  local cgo_enabled="$1"
   # Sets appropriate CC based on GOOS/GOARCH when CGO_ENABLED=1
-  if [[ "${CGO_ENABLED}" != "1" ]]; then
+  if [[ "${cgo_enabled}" != "1" ]]; then
     unset CC
     return
   fi
@@ -107,6 +108,18 @@ set_cc() {
       ;;
     *)
       unset CC
+      ;;
+  esac
+}
+
+should_enable_cgo() {
+  local platform="$1"
+  case "${platform}" in
+    linux/amd64)
+      return 0
+      ;;
+    *)
+      return 1
       ;;
   esac
 }
@@ -154,10 +167,14 @@ for PLATFORM in "${PLATFORMS[@]}"; do
   GOARCH=${PLATFORM#*/}
   set_goarm "$GOARCH"
   set_gomips "$GOARCH"
-  set_cc
+  TARGET_CGO_ENABLED=0
+  if should_enable_cgo "${PLATFORM}"; then
+    TARGET_CGO_ENABLED=1
+  fi
+  set_cc "${TARGET_CGO_ENABLED}"
   BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
   if [[ "${GOOS}" == "windows" ]]; then BIN_FILENAME="${BIN_FILENAME}.exe"; fi
-  CMD="CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} CCX=${CCX:-} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+  CMD="CGO_ENABLED=${TARGET_CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} CCX=${CCX:-} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
   echo "${CMD}"
   BUILT_ANY=1
   eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"

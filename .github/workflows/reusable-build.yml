@@ -201,6 +201,16 @@ jobs:
       - name: Run build script
         run: ./build-github.sh
 
+      - name: Validate linux/amd64 binary linking
+        if: ${{ matrix.target == 'linux/amd64' }}
+        run: |
+          LDD_OUTPUT=$(ldd dist/TorrServer-linux-amd64 2>&1 || true)
+          echo "${LDD_OUTPUT}"
+          if echo "${LDD_OUTPUT}" | grep -q "not a dynamic executable"; then
+            echo "TorrServer-linux-amd64 must be dynamically linked" >&2
+            exit 1
+          fi
+
       - name: Upload dist artifacts
         if: success() || failure()
         uses: actions/upload-artifact@v5
