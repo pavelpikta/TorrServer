@@ -403,7 +403,7 @@ prepare_build() {
     # Create dist directory
     mkdir -p "${ROOT}/dist"
 
-    cd "${ROOT}" || exit 1
+    cd "${ROOT}/server" || exit 1
 }
 
 # Web build
