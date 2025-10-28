@@ -86,7 +86,7 @@ jobs:
           - target: linux/amd64
             artifact: linux-amd64
             cgo_support: full
-            musl_support: true
+            # musl_support: true
           - target: linux/arm64
             artifact: linux-arm64
             cgo_support: full

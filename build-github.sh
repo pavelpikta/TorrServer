@@ -194,13 +194,20 @@ build_binary() {
     local cgo_enabled="$4"
     local build_type="$5"  # "static" or "cgo"
 
-    local bin_filename="${OUTPUT}-${goos}-${goarch}${goarm_suffix}"
-    [[ "${goos}" == "windows" ]] && bin_filename="${bin_filename}.exe"
+    local cgo_suffix
+    if [[ "${cgo_enabled}" == "1" ]]; then
+        cgo_suffix="cgo"
+    else
+        cgo_suffix="nocgo"
+    fi
 
-    # Add build type suffix for clarity
-    if [[ "${BUILD_MODE}" == "both" ]]; then
+    local bin_filename="${OUTPUT}-${goos}-${goarch}${goarm_suffix}-${cgo_suffix}"
+
+    if [[ -n "${build_type}" ]]; then
         bin_filename="${bin_filename}-${build_type}"
     fi
+
+    [[ "${goos}" == "windows" ]] && bin_filename="${bin_filename}.exe"
 
     local target_ldflags="${LDFLAGS}"
     local target_build_flags="${BUILD_FLAGS}"
