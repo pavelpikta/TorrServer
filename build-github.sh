@@ -233,6 +233,13 @@ build_binary() {
 
     local target_ldflags="${LDFLAGS}"
     local target_build_flags="${BUILD_FLAGS}"
+    local go_mips_env="${GO_MIPS}"
+
+    # CGO builds rely on the toolchain's glibc which is hard-float by default.
+    # Switch MIPS CGO builds to hardfloat so required headers/libs exist.
+    if [[ "${cgo_enabled}" == "1" && "${go_mips_env}" == *softfloat ]]; then
+        go_mips_env="${go_mips_env/softfloat/hardfloat}"
+    fi
 
     # Configure linking for CGO builds
     if [[ "${cgo_enabled}" == "1" ]]; then
@@ -270,7 +277,7 @@ build_binary() {
     fi
 
     # Setup environment
-    local env_vars="CGO_ENABLED=${cgo_enabled} GOOS=${goos} GOARCH=${goarch} ${GO_ARM} ${GO_MIPS}"
+    local env_vars="CGO_ENABLED=${cgo_enabled} GOOS=${goos} GOARCH=${goarch} ${GO_ARM} ${go_mips_env}"
 
     # Build command
     local cmd="${env_vars} ${GOBIN} build -ldflags='${target_ldflags}' ${target_build_flags} -o ${bin_filename} ./cmd"
