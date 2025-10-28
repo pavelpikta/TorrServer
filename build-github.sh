@@ -70,6 +70,9 @@ FAILURES=""
 ROOT=${PWD}
 OUTPUT="${ROOT}/dist/TorrServer"
 BUILT_ANY=0
+HOST_GOOS=$($GOBIN env GOHOSTOS)
+HOST_GOARCH=$($GOBIN env GOHOSTARCH)
+ENABLE_NATIVE_CGO=${ENABLE_NATIVE_CGO:-0} # Allow opting into CGO for the native host build when glibc is desired.
 
 if [[ -n "${BUILD_TARGET}" ]]; then
   echo "Building only target: ${BUILD_TARGET}"
@@ -103,12 +106,18 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     continue
   fi
   GOOS=${PLATFORM%/*}
-  GOARCH=${PLATFORM#*/}
-  set_goarm "$GOARCH"
-  set_gomips "$GOARCH"
+  TARGET_ARCH=${PLATFORM#*/}
+  GOARCH=${TARGET_ARCH}
+  set_goarm "$TARGET_ARCH"
+  set_gomips "$TARGET_ARCH"
+  TARGET_GOARCH=${GOARCH}
   BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
   if [[ "${GOOS}" == "windows" ]]; then BIN_FILENAME="${BIN_FILENAME}.exe"; fi
-  CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+  CGO_CURRENT=0
+  if [[ "${GOOS}" == "${HOST_GOOS}" && "${TARGET_GOARCH}" == "${HOST_GOARCH}" && "${ENABLE_NATIVE_CGO}" == "1" ]]; then
+    CGO_CURRENT=1
+  fi
+  CMD="GOOS=${GOOS} GOARCH=${GOARCH} CGO_ENABLED=${CGO_CURRENT} ${GO_ARM} ${GO_MIPS} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
   echo "${CMD}"
   BUILT_ANY=1
   eval "$CMD" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
