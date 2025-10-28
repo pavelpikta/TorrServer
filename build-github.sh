@@ -190,6 +190,10 @@ supports_dynamic_nocgo() {
     local goos="$1"
     local goarch="$2"
 
+    if [[ "${ENABLE_NOCGO_DYNAMIC:-false}" != "true" ]]; then
+        return 1
+    fi
+
     if [[ "${goos}" == "linux" ]]; then
         case "${goarch}" in
             amd64|arm64)
@@ -207,7 +211,7 @@ build_binary() {
     local goarch="$2"
     local goarm_suffix="$3"
     local cgo_enabled="$4"
-    local build_type="$5"  # "static" or "cgo"
+    local build_type="$5"  # "static", "dynamic", "android", etc.
 
     local cgo_suffix
     if [[ "${cgo_enabled}" == "1" ]]; then
@@ -345,15 +349,19 @@ build_platform() {
         if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "0" "static"; then
             platform_failed=true
             FAILURES="${FAILURES} ${platform}(nocgo-static)"
+        else
+            BUILT_ANY=1
         fi
 
         if supports_dynamic_nocgo "${goos}" "${goarch}"; then
             if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "0" "dynamic"; then
                 platform_failed=true
                 FAILURES="${FAILURES} ${platform}(nocgo-dynamic)"
+            else
+                BUILT_ANY=1
             fi
         else
-            log_info "Skipping nocgo dynamic build for ${platform} (unsupported)"
+            log_info "Skipping nocgo dynamic build for ${platform} (unsupported; set ENABLE_NOCGO_DYNAMIC=true to attempt)"
         fi
     fi
 
@@ -366,6 +374,8 @@ build_platform() {
             if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "1" "static"; then
                 platform_failed=true
                 FAILURES="${FAILURES} ${platform}(cgo-static)"
+            else
+                BUILT_ANY=1
             fi
         else
             log_warn "CGO cross-compilation not supported for ${platform}"
@@ -378,6 +388,8 @@ build_platform() {
                 if ! build_binary "${goos}" "${goarch}" "${goarm_suffix}" "1" "dynamic"; then
                     platform_failed=true
                     FAILURES="${FAILURES} ${platform}(cgo-dynamic)"
+                else
+                    BUILT_ANY=1
                 fi
             else
                 log_warn "CGO cross-compilation not supported for ${platform} (dynamic)"
