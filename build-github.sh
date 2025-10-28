@@ -271,7 +271,7 @@ build_platform() {
     local platform="$1"
     local goos goarch goarm_suffix
 
-    goos=${platform%/*}
+    goos=${platform%%/*}
     goarch=${platform#*/}
 
     # Handle ARM variants
