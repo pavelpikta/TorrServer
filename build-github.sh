@@ -142,8 +142,9 @@ cd "${ROOT}/server" || exit 1
 $GOBIN clean -cache -modcache -i -r
 $GOBIN mod tidy
 
-# BUILD_FLAGS="-ldflags=${LDFLAGS} -tags=nosqlite -trimpath"
-BUILD_FLAGS=""
+LDFLAGS="'-s -w -checklinkname=0'"
+BUILD_FLAGS="-ldflags=${LDFLAGS} -tags=nosqlite -trimpath"
+# BUILD_FLAGS=""
 
 for PLATFORM in "${PLATFORMS[@]}"; do
   if ! should_build_target "${PLATFORM}"; then
@@ -156,7 +157,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
   set_cc
   BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
   if [[ "${GOOS}" == "windows" ]]; then BIN_FILENAME="${BIN_FILENAME}.exe"; fi
-  CMD="CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+  CMD="CGO_ENABLED=${CGO_ENABLED} GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} CC=${CC:-} CCX=${CCX:-} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
   echo "${CMD}"
   BUILT_ANY=1
   eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
@@ -191,7 +192,7 @@ if should_build_android_section; then
     export CXX="$NDK_TOOLCHAIN/bin/$COMPILER++"
     set_goarm "$GOARCH"
     BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
-    CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} CGO_ENABLED=1 ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+    CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} CGO_ENABLED=1 CC=${CC} CCX=${CCX} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
     echo "${CMD}"
     BUILT_ANY=1
     eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
