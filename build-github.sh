@@ -22,7 +22,7 @@ PLATFORMS=(
 type setopt >/dev/null 2>&1
 
 BUILD_TARGET=${BUILD_TARGET:-}
-CGO_ENABLED=${CGO_ENABLED:-0} # Default disable CGO
+CGO_ENABLED=0 # Default disable CGO
 
 should_build_target() {
   local candidate="$1"

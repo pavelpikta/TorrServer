@@ -145,58 +145,58 @@ jobs:
           unzip -q ./android-ndk-r25c-linux.zip
           rm ./android-ndk-r25c-linux.zip
 
-      - name: Setup cross-compilers
-        run: |
-          case "${{ matrix.target }}" in
-            linux/amd64)
-              sudo apt-get update
-              sudo apt-get install -y build-essential gcc
-              ;;
-            linux/386)
-              sudo apt-get update
-              sudo apt-get install -y gcc-multilib libc6-dev-i386-cross
-              ;;
-            linux/arm64)
-              sudo apt-get update
-              sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
-              ;;
-            linux/arm7|linux/arm5)
-              sudo apt-get update
-              sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
-              ;;
-            linux/mips)
-              sudo apt-get update
-              sudo apt-get install -y gcc-mips-linux-gnu
-              ;;
-            linux/mipsle)
-              sudo apt-get update
-              sudo apt-get install -y gcc-mipsel-linux-gnu
-              ;;
-            linux/mips64)
-              sudo apt-get update
-              sudo apt-get install -y gcc-mips64-linux-gnuabi64
-              ;;
-            linux/mips64le)
-              sudo apt-get update
-              sudo apt-get install -y gcc-mips64el-linux-gnuabi64
-              ;;
-            linux/riscv64)
-              sudo apt-get update
-              sudo apt-get install -y gcc-riscv64-linux-gnu
-              ;;
-            windows/amd64)
-              sudo apt-get update
-              sudo apt-get install -y mingw-w64
-              ;;
-            windows/386)
-              sudo apt-get update
-              sudo apt-get install -y mingw-w64
-              ;;
-            # Darwin and FreeBSD cross-compilation requires complex setup, skip CC install.
-            *)
-              echo "No cross-compiler setup required for target ${{ matrix.target }}"
-              ;;
-          esac
+      # - name: Setup cross-compilers
+      #   run: |
+      #     case "${{ matrix.target }}" in
+      #       linux/amd64)
+      #         sudo apt-get update
+      #         sudo apt-get install -y build-essential gcc
+      #         ;;
+      #       linux/386)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-multilib libc6-dev-i386-cross
+      #         ;;
+      #       linux/arm64)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+      #         ;;
+      #       linux/arm7|linux/arm5)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+      #         ;;
+      #       linux/mips)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-mips-linux-gnu
+      #         ;;
+      #       linux/mipsle)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-mipsel-linux-gnu
+      #         ;;
+      #       linux/mips64)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-mips64-linux-gnuabi64
+      #         ;;
+      #       linux/mips64le)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-mips64el-linux-gnuabi64
+      #         ;;
+      #       linux/riscv64)
+      #         sudo apt-get update
+      #         sudo apt-get install -y gcc-riscv64-linux-gnu
+      #         ;;
+      #       windows/amd64)
+      #         sudo apt-get update
+      #         sudo apt-get install -y mingw-w64
+      #         ;;
+      #       windows/386)
+      #         sudo apt-get update
+      #         sudo apt-get install -y mingw-w64
+      #         ;;
+      #       # Darwin and FreeBSD cross-compilation requires complex setup, skip CC install.
+      #       *)
+      #         echo "No cross-compiler setup required for target ${{ matrix.target }}"
+      #         ;;
+      #     esac
 
       - name: Run build script
         run: ./build-github.sh
