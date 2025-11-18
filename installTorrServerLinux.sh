@@ -78,7 +78,7 @@ declare -A MSG_EN=(
   # Checks
   [need_root]="Script must run as root or user with sudo privileges. Example: sudo $scriptname"
   [unsupported_arch]="Unsupported Arch. Can't continue."
-  [unsupported_os]="It looks like you are running this installer on a system other than Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux or Arch Linux."
+  [unsupported_os]="It looks like you are running this installer on a system other than Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux, Arch Linux or Alpine Linux."
 
   # User management
   [user_exists]="User %s exists!"
@@ -155,6 +155,9 @@ declare -A MSG_EN=(
   [systemctl_missing]="systemctl is not available. Skipping service management commands."
   [systemctl_failed]="Warning: systemctl %s failed"
   [service_start_failed]="Warning: TorrServer service failed to start. Check systemctl status for details."
+  [openrc_service_created]="OpenRC service file created at %s"
+  [openrc_service_enabled]="Service enabled in OpenRC"
+  [openrc_service_started]="Service started via OpenRC"
   [user_change_success]="Service user changed to %s"
   [user_change_permissions]="Updated ownership of %s to %s:%s"
   [user_change_missing]="TorrServer installation not found in %s. Run install first."
@@ -205,7 +208,7 @@ declare -A MSG_RU=(
   # Checks
   [need_root]="Вам нужно запустить скрипт от root или пользователя с правами sudo. Пример: sudo $scriptname"
   [unsupported_arch]="Не поддерживаемая архитектура. Продолжение невозможно."
-  [unsupported_os]="Похоже, что вы запускаете этот установщик в системе отличной от Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux или Arch Linux."
+  [unsupported_os]="Похоже, что вы запускаете этот установщик в системе отличной от Debian, Ubuntu, Fedora, CentOS, Amazon Linux, Oracle Linux, Arch Linux или Alpine Linux."
 
   # User management
   [user_exists]="пользователь %s найден!"
@@ -282,6 +285,9 @@ declare -A MSG_RU=(
   [systemctl_missing]="systemctl недоступен. Пропускаем команды управления службой."
   [systemctl_failed]="Предупреждение: команда systemctl %s завершилась ошибкой"
   [service_start_failed]="Предупреждение: служба TorrServer не запустилась. Проверьте systemctl status для деталей."
+  [openrc_service_created]="Файл службы OpenRC создан в %s"
+  [openrc_service_enabled]="Служба включена в OpenRC"
+  [openrc_service_started]="Служба запущена через OpenRC"
   [user_change_success]="Сервис TorrServer теперь запускается от пользователя %s"
   [user_change_permissions]="Обновлены права на %s: %s:%s"
   [user_change_missing]="Установка TorrServer не найдена в %s. Сначала выполните установку."
@@ -465,6 +471,10 @@ promptInput() {
   echo "${answer:-$default}"
 }
 
+isAlpine() {
+  [[ -e /etc/alpine-release ]]
+}
+
 systemctlCmd() {
   local quiet=0
   if [[ ${1:-} == "--quiet" ]]; then
@@ -490,6 +500,100 @@ systemctlCmd() {
   fi
 
   return 0
+}
+
+openrcCmd() {
+  local quiet=0
+  if [[ ${1:-} == "--quiet" ]]; then
+    quiet=1
+    shift
+  fi
+
+  if ! command -v rc-service >/dev/null 2>&1; then
+    return 1
+  fi
+
+  local cmd="${1:-}"
+  shift
+  local service_name="${1:-}"
+  shift
+
+  case "$cmd" in
+    start|stop|restart|status)
+      rc-service "$service_name" "$cmd" >/dev/null 2>&1
+      ;;
+    enable)
+      if command -v rc-update >/dev/null 2>&1; then
+        rc-update add "$service_name" default >/dev/null 2>&1
+      else
+        return 1
+      fi
+      ;;
+    disable)
+      if command -v rc-update >/dev/null 2>&1; then
+        rc-update delete "$service_name" default >/dev/null 2>&1
+      else
+        return 1
+      fi
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+serviceCmd() {
+  local quiet=0
+  if [[ ${1:-} == "--quiet" ]]; then
+    quiet=1
+    shift
+  fi
+
+  local cmd="${1:-}"
+  shift
+
+  # Handle daemon-reload separately (doesn't need service name)
+  if [[ "$cmd" == "daemon-reload" ]]; then
+    # Try systemd first
+    if command -v systemctl >/dev/null 2>&1; then
+      systemctl daemon-reload >/dev/null 2>&1
+      return $?
+    fi
+    # OpenRC doesn't need daemon-reload
+    if isAlpine && command -v rc-service >/dev/null 2>&1; then
+      return 0
+    fi
+    return 1
+  fi
+
+  # For other commands, service name is required
+  local service_name="${1:-}"
+  shift
+
+  # Remove .service suffix if present (for systemd compatibility)
+  service_name="${service_name%.service}"
+
+  # Try systemd first
+  if command -v systemctl >/dev/null 2>&1; then
+    case "$cmd" in
+      enable|disable|start|stop|restart)
+        systemctl "$cmd" "${service_name}.service" >/dev/null 2>&1
+        return $?
+        ;;
+    esac
+  fi
+
+  # Fall back to OpenRC on Alpine
+  if isAlpine && command -v rc-service >/dev/null 2>&1; then
+    case "$cmd" in
+      enable|disable|start|stop|restart)
+        openrcCmd ${quiet:+--quiet} "$cmd" "$service_name"
+        return $?
+        ;;
+    esac
+  fi
+
+  return 1
 }
 
 #############################################
@@ -781,6 +885,21 @@ installPackages() {
         pacman -S --noconfirm "${missing[@]}"
       fi
       ;;
+    apk)
+      local missing=()
+      for pkg in "${packages[@]}"; do
+        if ! apk info -e "$pkg" >/dev/null 2>&1; then
+          missing+=("$pkg")
+        fi
+      done
+      if [[ ${#missing[@]} -gt 0 ]]; then
+        if [[ $SILENT_MODE -eq 0 ]]; then
+          echo " $(msg installing_packages)"
+        fi
+        apk update >/dev/null 2>&1
+        apk add --no-cache "${missing[@]}"
+      fi
+      ;;
   esac
 }
 
@@ -877,6 +996,11 @@ checkOS() {
 
   elif [[ -e /etc/arch-release ]]; then
     installPackages arch curl iputils bind-tools
+
+  elif [[ -e /etc/alpine-release ]]; then
+    # shellcheck source=/dev/null
+    source /etc/os-release
+    installPackages apk curl bind-tools shadow
 
   else
     echo " $(msg unsupported_os)"
@@ -977,7 +1101,42 @@ checkInstalledVersion() {
 }
 
 createServiceFile() {
-  cat << EOF > "$dirInstall/$serviceName.service"
+  if isAlpine; then
+    # Create OpenRC init script for Alpine
+    # Read daemon options from config file
+    local daemon_options=""
+    if [[ -f "$dirInstall/$serviceName.config" ]]; then
+      daemon_options=$(grep "^DAEMON_OPTIONS=" "$dirInstall/$serviceName.config" | cut -d'"' -f2)
+    fi
+
+    cat << EOF > "/etc/init.d/$serviceName"
+#!/sbin/openrc-run
+
+name="TorrServer"
+description="TorrServer - stream torrent to http"
+command="${dirInstall}/$(getBinaryName)"
+command_args="$daemon_options"
+command_user="$username:$username"
+pidfile="/var/run/${serviceName}.pid"
+command_background="yes"
+
+depend() {
+  need net
+  after firewall
+}
+
+start_pre() {
+  checkpath -d -m 0755 -o "$username:$username" "$dirInstall" || return 1
+}
+
+EOF
+    chmod +x "/etc/init.d/$serviceName"
+    if [[ $SILENT_MODE -eq 0 ]]; then
+      echo " - $(msg openrc_service_created "/etc/init.d/$serviceName")"
+    fi
+  else
+    # Create systemd service file
+    cat << EOF > "$dirInstall/$serviceName.service"
 [Unit]
 Description=TorrServer - stream torrent to http
 Wants=network-online.target
@@ -999,6 +1158,7 @@ RestartSec=5s
 [Install]
 WantedBy=multi-user.target
 EOF
+  fi
 }
 
 # Check if BBR is available in the kernel
@@ -1390,8 +1550,10 @@ changeServiceUser() {
   fi
 
   createServiceFile
-  sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
-  ln -sf "$dirInstall/$serviceName.service" /usr/local/lib/systemd/system/
+  if ! isAlpine; then
+    sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+    ln -sf "$dirInstall/$serviceName.service" /usr/local/lib/systemd/system/
+  fi
 
   if [[ -d "$dirInstall" ]]; then
     chown -R "$owner":"$group" "$dirInstall"
@@ -1401,10 +1563,10 @@ changeServiceUser() {
   fi
 
   local restart_rc=0
-  if ! systemctlCmd daemon-reload; then
+  if ! serviceCmd daemon-reload; then
     restart_rc=1
   fi
-  if ! systemctlCmd restart "$serviceName.service"; then
+  if ! serviceCmd restart "$serviceName"; then
     restart_rc=1
   fi
 
@@ -1476,13 +1638,15 @@ installTorrServer() {
           configureBBR
           # Update service file
           createServiceFile
-          sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+          if ! isAlpine; then
+            sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+          fi
           sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.config"
           # Reload and restart service
-          if ! systemctlCmd daemon-reload; then
+          if ! serviceCmd daemon-reload; then
             :
           fi
-          if ! systemctlCmd restart "$serviceName.service"; then
+          if ! serviceCmd restart "$serviceName"; then
             :
           fi
           echo ""
@@ -1515,16 +1679,20 @@ installTorrServer() {
     downloadBinary "$urlBin" "$dirInstall/$binName" "$target_version"
   fi
 
-  # Create service and config files
-  createServiceFile
+  # Create config file first
   configureService
 
   # Configure BBR if enabled (non-critical - always succeeds)
   configureBBR
 
-  # Set up systemd service
-  ln -sf "$dirInstall/$serviceName.service" /usr/local/lib/systemd/system/
-  sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+  # Create service file (after config is created so options are available)
+  createServiceFile
+
+  # Set up service
+  if ! isAlpine; then
+    ln -sf "$dirInstall/$serviceName.service" /usr/local/lib/systemd/system/
+    sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+  fi
   sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.config"
 
   local service_started=0
@@ -1533,14 +1701,17 @@ installTorrServer() {
   if [[ $SILENT_MODE -eq 0 ]]; then
     echo " $(msg starting_service)"
   fi
-  if ! systemctlCmd daemon-reload; then
+  if ! serviceCmd daemon-reload; then
     :
   fi
-  if ! systemctlCmd enable "$serviceName.service"; then
+  if ! serviceCmd enable "$serviceName"; then
     :
   fi
-  if systemctlCmd restart "$serviceName.service"; then
+  if serviceCmd restart "$serviceName"; then
     service_started=1
+    if [[ $SILENT_MODE -eq 0 && isAlpine ]]; then
+      echo " - $(msg openrc_service_started)"
+    fi
   fi
 
   # Show completion message
@@ -1595,7 +1766,7 @@ updateTorrServerVersion() {
     return 1
   fi
 
-  if ! systemctlCmd stop "$serviceName.service"; then
+  if ! serviceCmd stop "$serviceName"; then
     :
   fi
 
@@ -1611,9 +1782,9 @@ updateTorrServerVersion() {
   downloadBinary "$urlBin" "$dirInstall/$binName" "$target_version"
 
   # Update service file to reflect user change
-  if [[ -f "$dirInstall/$serviceName.service" ]]; then
+  if [[ -f "$dirInstall/$serviceName.service" ]] || [[ -f "/etc/init.d/$serviceName" ]]; then
     createServiceFile
-    if ! systemctlCmd daemon-reload; then
+    if ! serviceCmd daemon-reload; then
       :
     fi
   fi
@@ -1621,7 +1792,7 @@ updateTorrServerVersion() {
   # Ensure BBR is active before starting service (if previously configured)
   ensureBBRActive
 
-  if ! systemctlCmd start "$serviceName.service"; then
+  if ! serviceCmd start "$serviceName"; then
     :
   fi
 
@@ -1645,33 +1816,42 @@ DowngradeVersion() {
 #############################################
 
 cleanup() {
-  if ! systemctlCmd --quiet stop "$serviceName"; then
+  if ! serviceCmd --quiet stop "$serviceName"; then
     :
   fi
-  if ! systemctlCmd --quiet disable "$serviceName"; then
+  if ! serviceCmd --quiet disable "$serviceName"; then
     :
   fi
-  rm -rf /usr/local/lib/systemd/system/"$serviceName.service" "$dirInstall" 2>/dev/null
+  if isAlpine; then
+    rm -f "/etc/init.d/$serviceName" 2>/dev/null
+  else
+    rm -rf /usr/local/lib/systemd/system/"$serviceName.service" 2>/dev/null
+  fi
+  rm -rf "$dirInstall" 2>/dev/null
   delUser
 }
 
 cleanAll() {
-  if ! systemctlCmd --quiet stop torr; then
+  if ! serviceCmd --quiet stop torr; then
     :
   fi
-  if ! systemctlCmd --quiet stop torrserver; then
+  if ! serviceCmd --quiet stop torrserver; then
     :
   fi
-  if ! systemctlCmd --quiet disable torr; then
+  if ! serviceCmd --quiet disable torr; then
     :
   fi
-  if ! systemctlCmd --quiet disable torrserver; then
+  if ! serviceCmd --quiet disable torrserver; then
     :
   fi
   rm -rf /home/torrserver 2>/dev/null
   rm -rf /usr/local/torr 2>/dev/null
   rm -rf /opt/torr* 2>/dev/null
-  rm -f /{,etc,usr/local/lib}/systemd/system/tor{,r,rserver}.service 2>/dev/null
+  if isAlpine; then
+    rm -f /etc/init.d/tor{,r,rserver} 2>/dev/null
+  else
+    rm -f /{,etc,usr/local/lib}/systemd/system/tor{,r,rserver}.service 2>/dev/null
+  fi
 }
 
 uninstall() {
@@ -1736,14 +1916,16 @@ reconfigureTorrServer() {
 
   # Update service file
   createServiceFile
-  sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+  if ! isAlpine; then
+    sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+  fi
   sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.config"
 
   # Reload and restart service
-  if ! systemctlCmd daemon-reload; then
+  if ! serviceCmd daemon-reload; then
     :
   fi
-  if ! systemctlCmd restart "$serviceName.service"; then
+  if ! serviceCmd restart "$serviceName"; then
     :
   fi
 
@@ -1946,13 +2128,19 @@ main() {
         installTorrServer
       else
         createServiceFile
-        if ! systemctlCmd daemon-reload; then
+        if ! isAlpine; then
+          if [[ -f "$dirInstall/$serviceName.service" ]]; then
+            sed -i 's/^[ \t]*//' "$dirInstall/$serviceName.service"
+            ln -sf "$dirInstall/$serviceName.service" /usr/local/lib/systemd/system/
+          fi
+        fi
+        if ! serviceCmd daemon-reload; then
           :
         fi
-        if ! systemctlCmd stop "$serviceName.service"; then
+        if ! serviceCmd stop "$serviceName"; then
           :
         fi
-        if ! systemctlCmd start "$serviceName.service"; then
+        if ! serviceCmd start "$serviceName"; then
           :
         fi
         if [[ $SILENT_MODE -eq 0 ]]; then
