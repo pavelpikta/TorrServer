@@ -3,11 +3,16 @@ import parseTorrent from 'parse-torrent'
 import ptt from 'parse-torrent-title'
 
 export const getMoviePosters = (movieName, language = 'en') => {
-  const url = `${window.location.protocol}//api.themoviedb.org/3/search/multi`
-  const imgHost = `${window.location.protocol}//${language === 'ru' ? 'imagetmdb.com' : 'image.tmdb.org'}`
+  const apiProxyUrl = process.env.REACT_APP_TMDB_API_PROXY_URL || process.env.REACT_APP_TMDB_PROXY_URL
+  const imageProxyUrl = process.env.REACT_APP_TMDB_IMAGE_PROXY_URL || process.env.REACT_APP_TMDB_PROXY_URL
 
-  return axios
-    .get(url, {
+  const originalUrl = `${window.location.protocol}//api.themoviedb.org/3/search/multi`
+  const url = apiProxyUrl ? `${apiProxyUrl}/3/search/multi` : originalUrl
+  const originalImgHost = `${window.location.protocol}//${language === 'ru' ? 'imagetmdb.com' : 'image.tmdb.org'}`
+  const imgHost = imageProxyUrl || originalImgHost
+
+  const makeRequest = requestUrl =>
+    axios.get(requestUrl, {
       params: {
         api_key: process.env.REACT_APP_TMDB_API_KEY,
         language,
@@ -15,6 +20,24 @@ export const getMoviePosters = (movieName, language = 'en') => {
         query: movieName,
       },
     })
+
+  // If API proxy is configured, try proxy first, then fallback to original
+  if (apiProxyUrl) {
+    return makeRequest(url)
+      .then(({ data: { results } }) =>
+        results.filter(el => el.poster_path).map(el => `${imgHost}/t/p/w300${el.poster_path}`),
+      )
+      .catch(() =>
+        makeRequest(originalUrl)
+          .then(({ data: { results } }) =>
+            results.filter(el => el.poster_path).map(el => `${originalImgHost}/t/p/w300${el.poster_path}`),
+          )
+          .catch(() => null),
+      )
+  }
+
+  // No proxy configured, use original API
+  return makeRequest(url)
     .then(({ data: { results } }) =>
       results.filter(el => el.poster_path).map(el => `${imgHost}/t/p/w300${el.poster_path}`),
     )
