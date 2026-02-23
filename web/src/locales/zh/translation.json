@@ -204,6 +204,7 @@
     "UseInfuseHint": "将 Infuse 播放器按钮添加到种子内容列表",
     "UseVLC": "提示在VLC中打开视频",
     "UseVLCHint": "将VLC播放器按钮添加到种子内容列表",
+    "UseVLCDesktopHintPrefix": "桌面端需要",
     "UseIINA": "提示在 IINA 中打开视频",
     "UseIINAHint": "将 IINA 播放器按钮添加到种子内容列表（仅 macOS）",
     "ViewedHistoryStorage": "查看历史存储：",

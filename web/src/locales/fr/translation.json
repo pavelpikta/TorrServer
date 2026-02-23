@@ -204,6 +204,7 @@
     "UseInfuseHint": "Ajouter un bouton de lecteur Infuse à la liste de contenu du torrent",
     "UseVLC": "Demander d'ouvrir la vidéo dans VLC",
     "UseVLCHint": "Ajouter un bouton de lecteur VLC à la liste de contenu du torrent",
+    "UseVLCDesktopHintPrefix": "Sur PC nécessite",
     "UseIINA": "Demander d'ouvrir la vidéo dans IINA",
     "UseIINAHint": "Ajouter un bouton de lecteur IINA à la liste de contenu du torrent (macOS uniquement)",
     "ViewedHistoryStorage": "Stockage de l'historique des vues :",

@@ -1,5 +1,5 @@
-import { FormControlLabel, FormGroup, FormHelperText, Switch } from '@material-ui/core'
-import { isMacOS, isAppleDevice } from 'utils/Utils'
+import { FormControlLabel, FormGroup, FormHelperText, Switch, Link } from '@material-ui/core'
+import { isMacOS, isAppleDevice, isDesktop } from 'utils/Utils'
 import { useTranslation } from 'react-i18next'
 
 import { SecondarySettingsContent, SettingSectionLabel } from './style'
@@ -15,6 +15,7 @@ export default function MobileAppSettings({
   const { t } = useTranslation()
   const isMac = isMacOS()
   const isApple = isAppleDevice()
+  const isDesktopPlatform = isDesktop()
 
   return (
     <SecondarySettingsContent>
@@ -26,6 +27,19 @@ export default function MobileAppSettings({
           labelPlacement='start'
         />
         <FormHelperText margin='none'>{t('SettingsDialog.UseVLCHint')}</FormHelperText>
+        {isDesktopPlatform && (
+          <FormHelperText margin='none'>
+            {t('SettingsDialog.UseVLCDesktopHintPrefix')}{' '}
+            <Link
+              href='https://github.com/northsea4/vlc-protocol'
+              target='_blank'
+              rel='noopener noreferrer'
+              color='secondary'
+            >
+              vlc-protocol-handler
+            </Link>
+          </FormHelperText>
+        )}
         {isApple && (
           <>
             <FormControlLabel

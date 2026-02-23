@@ -204,6 +204,7 @@
     "UseInfuseHint": "Add Infuse player button to torrent content list",
     "UseVLC": "Prompt to open video in VLC",
     "UseVLCHint": "Add VLC player button to torrent content list",
+    "UseVLCDesktopHintPrefix": "Desktop requires",
     "UseIINA": "Prompt to open video in IINA",
     "UseIINAHint": "Add IINA player button to torrent content list (macOS only)",
     "ViewedHistoryStorage": "Viewed History Storage:",
