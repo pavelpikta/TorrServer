@@ -154,7 +154,7 @@
     "FriendlyName": "DLNA服务器名称",
     "FriendlyNameHint": "留空使用默认值",
     "JsonFile": "JSON文件",
-    "MobileAppSettings": "移动APP设置",
+    "MobileAppSettings": "播放器",
     "PeersListenPort": "Peers监听端口",
     "PeersListenPortHint": "1024 - 65535，0 - 自动",
     "PreloadCache": "播放前预加载缓存",
@@ -191,7 +191,7 @@
     "Tabs": {
       "Additional": "附加",
       "AdditionalDisabled": "（启用专业模式）",
-      "App": "播放器",
+      "App": "应用程序",
       "Main": "主要"
     },
     "TorrentDisconnectTimeout": "种子断开超时",

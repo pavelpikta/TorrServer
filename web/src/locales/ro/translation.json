@@ -154,7 +154,7 @@
     "FriendlyName": "Numele serverului DLNA",
     "FriendlyNameHint": "Lăsați necompletat pentru a utiliza valoarea implicită",
     "JsonFile": "JSON File",
-    "MobileAppSettings": "Setări aplicație mobilă",
+    "MobileAppSettings": "Playere",
     "PeersListenPort": "Port pentru conexiuni de la peers",
     "PeersListenPortHint": "1024 - 65535, 0 - aleatoriu",
     "PreloadCache": "Preîncărcare cache înainte de redare",
@@ -191,7 +191,7 @@
     "Tabs": {
       "Additional": "Suplimentar",
       "AdditionalDisabled": "(activează modul PRO)",
-      "App": "Playere",
+      "App": "Aplicație",
       "Main": "Meniu Principal"
     },
     "TorrentDisconnectTimeout": "Timp de expirare pentru deconectarea torrentului",

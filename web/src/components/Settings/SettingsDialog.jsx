@@ -142,9 +142,7 @@ export default function SettingsDialog({ handleClose }) {
 
           <StyledTab label={t('Search')} {...a11yProps(2)} />
 
-          <StyledTab label={t('TMDB.Settings')} {...a11yProps(3)} />
-
-          <StyledTab label={t('SettingsDialog.Tabs.App')} {...a11yProps(4)} />
+          <StyledTab label={t('SettingsDialog.Tabs.App')} {...a11yProps(3)} />
         </StyledTabs>
       </AppBar>
 
@@ -181,9 +179,6 @@ export default function SettingsDialog({ handleClose }) {
 
               <TabPanel value={selectedTab} index={3} dir={direction}>
                 <TMDBSettings settings={settings} updateSettings={updateSettings} />
-              </TabPanel>
-
-              <TabPanel value={selectedTab} index={4} dir={direction}>
                 <MobileAppSettings
                   isVlcUsed={isVlcUsed}
                   setIsVlcUsed={setIsVlcUsed}

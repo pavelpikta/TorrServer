@@ -154,7 +154,7 @@
     "FriendlyName": "DLNA Server Name",
     "FriendlyNameHint": "Leave blank to use default",
     "JsonFile": "JSON File",
-    "MobileAppSettings": "Mobile app settings",
+    "MobileAppSettings": "Players",
     "PeersListenPort": "Peers Listen Port",
     "PeersListenPortHint": "1024 - 65535, 0 - random",
     "PreloadCache": "Preload Cache Before Play",
@@ -191,7 +191,7 @@
     "Tabs": {
       "Additional": "Additional",
       "AdditionalDisabled": "(enable PRO mode)",
-      "App": "Players",
+      "App": "Application",
       "Main": "Main"
     },
     "TorrentDisconnectTimeout": "Torrent Disconnect Timeout",

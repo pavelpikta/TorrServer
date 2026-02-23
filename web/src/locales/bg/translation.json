@@ -154,7 +154,7 @@
     "FriendlyName": "Име на DLNA сървъра",
     "FriendlyNameHint": "Оставете празно, за да използвате по подразбиране",
     "JsonFile": "JSON файл",
-    "MobileAppSettings": "Настройки на мобилното приложение",
+    "MobileAppSettings": "Плейъри",
     "PeersListenPort": "Порт за слушане на пиъри",
     "PeersListenPortHint": "1024 - 65535, 0 - случайно",
     "PreloadCache": "Предварително зареждане на кеша преди възпроизвеждане",
@@ -191,7 +191,7 @@
     "Tabs": {
       "Additional": "Допълнителен",
       "AdditionalDisabled": "(разрешете ПРО режим)",
-      "App": "Плейъри",
+      "App": "Приложение",
       "Main": "Основен"
     },
     "TorrentDisconnectTimeout": "Време на изчакване на връзката с торенти",

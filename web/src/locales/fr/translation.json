@@ -154,7 +154,7 @@
     "FriendlyName": "Nom du serveur DLNA",
     "FriendlyNameHint": "Laisser vide pour utiliser la valeur par défaut",
     "JsonFile": "Fichier JSON",
-    "MobileAppSettings": "Paramètres de l'application mobile",
+    "MobileAppSettings": "Lecteurs",
     "PeersListenPort": "Port d'écoute des pairs",
     "PeersListenPortHint": "1024 - 65535, 0 - aléatoire",
     "PreloadCache": "Cache de préchargement avant la lecture",
@@ -191,7 +191,7 @@
     "Tabs": {
       "Additional": "Supplémentaire",
       "AdditionalDisabled": "(activer le mode PRO)",
-      "App": "Lecteurs",
+      "App": "Application",
       "Main": "Principal"
     },
     "TorrentDisconnectTimeout": "Délai de déconnexion du torrent",
