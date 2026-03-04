@@ -1,3 +1,5 @@
+const webpack = require('webpack')
+
 module.exports = {
   webpack: {
     configure: webpackConfig => {
@@ -11,6 +13,11 @@ module.exports = {
         querystring: require.resolve('querystring-es3'),
         url: require.resolve('url'),
       }
+      webpackConfig.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+        }),
+      )
       return webpackConfig
     },
   },
