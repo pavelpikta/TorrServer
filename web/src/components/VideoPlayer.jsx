@@ -11,7 +11,7 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import Forward10Icon from '@mui/icons-material/Forward10'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
@@ -45,168 +45,145 @@ function getMimeType(url) {
   }
 }
 
-const PrettoSlider = withStyles(theme => ({
-  root: {
-    color: '#00a572',
-    height: 6,
-    [theme?.breakpoints?.down?.('sm')]: {
-      height: 0,
-    },
+const PrettoSlider = styled(Slider)(({ theme }) => ({
+  color: '#00a572',
+  height: 6,
+  [theme.breakpoints.down('sm')]: {
+    height: 0,
   },
-  thumb: {
+  '& .MuiSlider-thumb': {
     height: 18,
     width: 18,
     backgroundColor: '#fff',
     border: '2px solid currentColor',
     marginTop: -6,
     marginLeft: -12,
-    [theme?.breakpoints?.down?.('sm')]: {
+    [theme.breakpoints.down('sm')]: {
       height: 15,
       width: 15,
       marginTop: -5,
       marginLeft: -7,
     },
   },
-  track: {
+  '& .MuiSlider-track': {
     height: 6,
     borderRadius: 4,
-    [theme?.breakpoints?.down?.('sm')]: {
+    [theme.breakpoints.down('sm')]: {
       height: 5,
     },
   },
-  rail: {
+  '& .MuiSlider-rail': {
     height: 6,
     borderRadius: 4,
-    [theme?.breakpoints?.down?.('sm')]: {
+    [theme.breakpoints.down('sm')]: {
       height: 6,
     },
   },
-}))(Slider)
+}))
 
-const useStyles = makeStyles(theme => ({
-  dialogPaper: {
-    backgroundColor: '#fff',
-    borderRadius: theme.spacing(1),
+const VideoWrapper = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  width: '100%',
+  backgroundColor: '#000',
+  overflow: 'hidden',
+  '&:hover [data-video-controls]': {
+    opacity: 1,
   },
-  header: {
-    backgroundColor: '#00a572',
-    color: '#fff',
-    padding: theme.spacing(1, 2),
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+}))
+
+const StyledVideo = styled('video')(({ theme }) => ({
+  width: '100%',
+  display: 'block',
+  cursor: 'pointer',
+  [theme.breakpoints.down('sm')]: {
+    height: '94.5vh',
+    width: '100vw',
+    objectFit: 'contain',
   },
-  videoWrapper: {
-    position: 'relative',
-    width: '100%',
-    backgroundColor: '#000',
-    overflow: 'hidden',
-    '&:hover $controls, &:hover $centralControl, &:hover $skipButton': {
-      opacity: 1,
-    },
-  },
-  video: {
-    width: '100%',
-    display: 'block',
-    cursor: 'pointer',
-    [theme.breakpoints.down('sm')]: {
-      height: '94.5vh',
-      width: '100vw',
-      objectFit: 'contain',
-    },
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    zIndex: 4,
-  },
-  centralControl: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    borderRadius: '50%',
-    padding: theme.spacing(1),
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    opacity: 0,
-    transition: 'opacity 200ms',
-    zIndex: 3,
-    color: '#fff',
-    pointerEvents: 'none',
-    animation: '$pulse 0.6s ease-out',
-  },
-  skipButton: {
-    position: 'absolute',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    padding: theme.spacing(1),
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    color: '#fff',
-    opacity: 0,
-    transition: 'opacity 200ms',
-    zIndex: 3,
-    '&:hover': { backgroundColor: 'rgba(0,0,0,0.6)' },
-  },
-  leftSkip: { left: theme.spacing(2) },
-  rightSkip: { right: theme.spacing(2) },
-  controls: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-    padding: theme.spacing(0, 3, 2, 3),
-    transition: 'opacity 200ms',
-    opacity: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.5),
-    zIndex: 3,
-    pointerEvents: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      opacity: 1,
-      padding: theme.spacing(0, 1, 2, 1),
-      gap: theme.spacing(0),
-      background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent)',
-    },
-  },
-  timeRow: {
-    color: '#fff',
-    paddingLeft: theme.spacing(2),
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: theme.spacing(1),
-      fontSize: 9,
-    },
-  },
-  slider: {
-    color: '#00e68a',
-    '& .MuiSlider-thumb': { backgroundColor: '#00e68a' },
-    '& .MuiSlider-track': { borderRadius: 2 },
-  },
-  controlRow: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  iconButton: {
-    color: '#fff',
-    padding: 12,
-    '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
-    [theme.breakpoints.down('sm')]: {
-      padding: 10,
-    },
-  },
-  speedMenu: { minWidth: 100 },
+}))
+
+const LoadingOverlay = styled(Box)(() => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'rgba(0,0,0,0.6)',
+  zIndex: 4,
+}))
+
+const CentralControl = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  borderRadius: '50%',
+  padding: theme.spacing(1),
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  opacity: 0,
+  transition: 'opacity 200ms',
+  zIndex: 3,
+  color: '#fff',
+  pointerEvents: 'none',
+  animation: 'pulse 0.6s ease-out',
   '@keyframes pulse': {
     '0%': { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0 },
     '50%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
     '100%': { transform: 'translate(-50%, -50%) scale(1.3)', opacity: 0 },
+  },
+}))
+
+const Controls = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  width: '100%',
+  background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+  padding: theme.spacing(0, 3, 2, 3),
+  transition: 'opacity 200ms',
+  opacity: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(0.5),
+  zIndex: 3,
+  pointerEvents: 'auto',
+  [theme.breakpoints.down('sm')]: {
+    opacity: 1,
+    padding: theme.spacing(0, 1, 2, 1),
+    gap: theme.spacing(0),
+    background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent)',
+  },
+}))
+
+const TimeRow = styled(Box)(({ theme }) => ({
+  color: '#fff',
+  paddingLeft: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    paddingLeft: theme.spacing(1),
+    fontSize: 9,
+  },
+}))
+
+const SliderStyled = styled(Slider)(() => ({
+  color: '#00e68a',
+  '& .MuiSlider-thumb': { backgroundColor: '#00e68a' },
+  '& .MuiSlider-track': { borderRadius: 2 },
+}))
+
+const ControlRow = styled(Box)(() => ({
+  display: 'flex',
+  alignItems: 'center',
+}))
+
+const IconButtonStyled = styled(IconButton)(({ theme }) => ({
+  color: '#fff',
+  padding: 12,
+  '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
+  [theme.breakpoints.down('sm')]: {
+    padding: 10,
   },
 }))
 
@@ -223,7 +200,6 @@ const formatTime = seconds => {
 }
 
 const VideoPlayer = ({ videoSrc, captionSrc = '', title, onNotSupported }) => {
-  const classes = useStyles()
   const isMobile = useMediaQuery('@media (max-width:930px)')
   const videoRef = useRef(null)
   const { t } = useTranslation()
@@ -345,19 +321,32 @@ const VideoPlayer = ({ videoSrc, captionSrc = '', title, onNotSupported }) => {
         maxWidth='lg'
         fullWidth
         fullScreen={isMobile}
-        classes={{ paper: classes.dialogPaper }}
+        slotProps={{
+          paper: {
+            sx: { backgroundColor: '#fff', borderRadius: 1 },
+          },
+        }}
       >
-        <DialogTitle className={classes.header} disableTypography>
+        <DialogTitle
+          sx={theme => ({
+            backgroundColor: '#00a572',
+            color: '#fff',
+            padding: theme.spacing(1, 2),
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          })}
+        >
           <Typography variant='h6' noWrap>
             {title || 'Video Player'}
           </Typography>
-          <IconButton size='medium' onClick={() => setOpen(false)} className={classes.iconButton}>
+          <IconButtonStyled size='medium' onClick={() => setOpen(false)}>
             <CloseIcon fontSize='medium' />
-          </IconButton>
+          </IconButtonStyled>
         </DialogTitle>
         <DialogContent style={{ padding: 0 }}>
-          <Box className={classes.videoWrapper} onClick={handlePlayPause} style={isMobile ? { minHeight: 240 } : {}}>
-            <video
+          <VideoWrapper onClick={handlePlayPause} style={isMobile ? { minHeight: 240 } : {}} data-video-controls>
+            <StyledVideo
               autoPlay
               ref={videoRef}
               src={videoSrc}
@@ -365,102 +354,87 @@ const VideoPlayer = ({ videoSrc, captionSrc = '', title, onNotSupported }) => {
               onLoadedMetadata={handleLoaded}
               onPlay={togglePlay}
               onPause={togglePlay}
-              className={classes.video}
             >
               <track kind='captions' srcLang='en' label='English captions' src={captionSrc} default />
-            </video>
+            </StyledVideo>
             {loading && (
-              <Box className={classes.loadingOverlay}>
+              <LoadingOverlay>
                 <CircularProgress fontSize='medium' />
-              </Box>
+              </LoadingOverlay>
             )}
-            <IconButton
+            <CentralControl
               size='medium'
-              className={classes.centralControl}
+              data-video-controls
               style={{
                 opacity: playing ? 0 : 1,
               }}
             >
               <PlayArrowIcon fontSize='medium' />
-            </IconButton>
-            <Box className={classes.controls} onClick={e => e.stopPropagation()}>
+            </CentralControl>
+            <Controls onClick={e => e.stopPropagation()} data-video-controls>
               {isMobile && (
-                <Box className={classes.timeRow}>
+                <TimeRow>
                   <Typography variant='body2'>
                     {formatTime(currentTime)} / {formatTime(duration)}
                   </Typography>
-                </Box>
+                </TimeRow>
               )}
-              <PrettoSlider
-                className={classes.slider}
-                value={currentTime}
-                max={duration}
-                onChange={handleSeek}
-                size='medium'
-              />
-              <Box className={classes.controlRow}>
+              <PrettoSlider value={currentTime} max={duration} onChange={handleSeek} size='medium' />
+              <ControlRow>
                 <Tooltip title={playing ? t('Pause') : t('Play')}>
-                  <IconButton size='medium' onClick={handlePlayPause} className={classes.iconButton}>
+                  <IconButtonStyled size='medium' onClick={handlePlayPause}>
                     {playing ? <PauseIcon fontSize='medium' /> : <PlayArrowIcon fontSize='medium' />}
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
                 <Tooltip title={t('Rewind-10-Sec')}>
-                  <IconButton
+                  <IconButtonStyled
                     size='medium'
-                    className={classes.iconButton}
                     onClick={e => {
                       e.stopPropagation()
                       skip(-10)
                     }}
                   >
                     <Replay10Icon fontSize='medium' />
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
 
                 <Tooltip title={t('Forward-10-Sec')}>
-                  <IconButton
+                  <IconButtonStyled
                     size='medium'
-                    className={classes.iconButton}
                     onClick={e => {
                       e.stopPropagation()
                       skip(10)
                     }}
                   >
                     <Forward10Icon fontSize='medium' />
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
                 <Tooltip title={muted ? t('Unmute') : t('Mute')}>
-                  <IconButton size='medium' className={classes.iconButton} onClick={toggleMute}>
+                  <IconButtonStyled size='medium' onClick={toggleMute}>
                     {muted ? <VolumeOffIcon fontSize='medium' /> : <VolumeUpIcon fontSize='medium' />}
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
                 {!isMobile && (
-                  <Slider
-                    className={classes.slider}
-                    value={volume * 100}
-                    onChange={handleVolume}
-                    size='medium'
-                    style={{ width: 70 }}
-                  />
+                  <SliderStyled value={volume * 100} onChange={handleVolume} size='medium' style={{ width: 70 }} />
                 )}
                 {!isMobile && (
-                  <Box className={classes.timeRow}>
+                  <TimeRow>
                     <Typography variant='body2'>
                       {formatTime(currentTime)} / {formatTime(duration)}
                     </Typography>
-                  </Box>
+                  </TimeRow>
                 )}
                 <Box flexGrow={1} />
                 <Tooltip title={t('Speed')}>
-                  <IconButton size='medium' onClick={openSpeedMenu} className={classes.iconButton}>
+                  <IconButtonStyled size='medium' onClick={openSpeedMenu}>
                     <SpeedIcon fontSize='medium' />
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
                   onClose={closeSpeedMenu}
-                  className={classes.speedMenu}
+                  slotProps={{ paper: { sx: { minWidth: 100 } } }}
                 >
                   {[0.5, 1, 1.5, 2].map(r => (
                     <MenuItem key={r} selected={r === speed} onClick={() => changeSpeed(r)}>
@@ -469,29 +443,25 @@ const VideoPlayer = ({ videoSrc, captionSrc = '', title, onNotSupported }) => {
                   ))}
                 </Menu>
                 <Tooltip title={t('PIP')}>
-                  <IconButton
-                    size='medium'
-                    className={classes.iconButton}
-                    onClick={() => videoRef.current.requestPictureInPicture()}
-                  >
+                  <IconButtonStyled size='medium' onClick={() => videoRef.current.requestPictureInPicture()}>
                     <PictureInPictureIcon fontSize='medium' />
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
 
                 <Tooltip title={t('Download')}>
-                  <IconButton size='medium' className={classes.iconButton} onClick={downloadVideo}>
+                  <IconButtonStyled size='medium' onClick={downloadVideo}>
                     <GetAppIcon fontSize='medium' />
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
 
                 <Tooltip title={fullscreen ? t('ExitFullscreen') : t('Fullscreen')}>
-                  <IconButton size='medium' onClick={fullscreen ? exitFull : enterFull} className={classes.iconButton}>
+                  <IconButtonStyled size='medium' onClick={fullscreen ? exitFull : enterFull}>
                     {fullscreen ? <FullscreenExitIcon fontSize='medium' /> : <FullscreenIcon fontSize='medium' />}
-                  </IconButton>
+                  </IconButtonStyled>
                 </Tooltip>
-              </Box>
-            </Box>
-          </Box>
+              </ControlRow>
+            </Controls>
+          </VideoWrapper>
         </DialogContent>
       </StyledDialog>
     </>

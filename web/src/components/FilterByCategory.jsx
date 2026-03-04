@@ -1,4 +1,4 @@
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import { useTranslation } from 'react-i18next'
@@ -11,10 +11,10 @@ export default function FilterByCategory({ categoryKey, categoryName, setGlobalF
 
   return (
     <>
-      <ListItem button key={categoryKey} onClick={onClick}>
+      <ListItemButton key={categoryKey} onClick={onClick}>
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={t(categoryName)} />
-      </ListItem>
+      </ListItemButton>
     </>
   )
 }

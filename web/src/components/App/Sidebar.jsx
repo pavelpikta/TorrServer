@@ -1,5 +1,5 @@
 import Divider from '@mui/material/Divider'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import { CreditCard as CreditCardIcon } from '@mui/icons-material'
@@ -66,13 +66,13 @@ const Sidebar = ({ isDrawerOpen, setIsDonationDialogOpen, isOffline, isLoading, 
 
         <AboutDialog />
 
-        <ListItem button onClick={() => setIsDonationDialogOpen(true)}>
+        <ListItemButton onClick={() => setIsDonationDialogOpen(true)}>
           <ListItemIcon>
             <CreditCardIcon />
           </ListItemIcon>
 
           <ListItemText primary={t('Donate')} />
-        </ListItem>
+        </ListItemButton>
 
         <CloseServer isOffline={isOffline} isLoading={isLoading} />
       </List>

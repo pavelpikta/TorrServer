@@ -5,7 +5,7 @@ import {
   TextField,
   Button,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   CircularProgress,
   Typography,
@@ -273,7 +273,7 @@ export default function SearchDialog({ handleClose }) {
                 const formattedSize = formatSizeToClassicUnits(sizeBytes)
                 return (
                   <div key={item.Hash || item.Link || index}>
-                    <ListItem button onClick={() => handleAdd(item)}>
+                    <ListItemButton onClick={() => handleAdd(item)}>
                       <ListItemText
                         primary={item.Title}
                         secondary={
@@ -307,7 +307,7 @@ export default function SearchDialog({ handleClose }) {
                           <DownloadIcon color='secondary' />
                         </IconButton>
                       </ListItemSecondaryAction>
-                    </ListItem>
+                    </ListItemButton>
                     <Divider component='li' />
                   </div>
                 )

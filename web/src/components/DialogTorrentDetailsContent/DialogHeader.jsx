@@ -1,19 +1,11 @@
 import { AppBar, IconButton, Toolbar, Typography } from '@mui/material'
-import { makeStyles } from '@mui/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArrowBack } from '@mui/icons-material'
 import { isStandaloneApp } from 'utils/Utils'
 
-const useStyles = makeStyles({
-  appBar: { position: 'relative', ...(isStandaloneApp && { paddingTop: '30px' }) },
-  title: { marginLeft: '5px', flex: 1 },
-})
-
 export default function DialogHeader({ title, onClose, onBack }) {
-  const classes = useStyles()
-
   return (
-    <AppBar className={classes.appBar}>
+    <AppBar position='relative' sx={{ ...(isStandaloneApp && { paddingTop: '30px' }) }}>
       <Toolbar>
         {onBack && (
           <IconButton edge='start' color='inherit' onClick={onBack} aria-label='back'>
@@ -21,7 +13,7 @@ export default function DialogHeader({ title, onClose, onBack }) {
           </IconButton>
         )}
 
-        <Typography variant='h6' className={classes.title}>
+        <Typography variant='h6' sx={{ marginLeft: '5px', flex: 1 }}>
           {title}
         </Typography>
 

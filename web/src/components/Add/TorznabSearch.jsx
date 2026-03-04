@@ -3,7 +3,7 @@ import {
   TextField,
   Button,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   CircularProgress,
   Typography,
@@ -183,7 +183,7 @@ export default function TorznabSearch({ onSelect }) {
                   const formattedSize = formatSizeToClassicUnits(sizeBytes)
                   return (
                     <React.Fragment key={item.Hash || item.Link || index}>
-                      <ListItem button onClick={() => onSelect(item.Magnet || item.Link)}>
+                      <ListItemButton onClick={() => onSelect(item.Magnet || item.Link)}>
                         <ListItemText
                           primary={item.Title}
                           secondary={`${formattedSize} • S:${item.Seed || 0} P:${item.Peer || 0}`}
@@ -210,7 +210,7 @@ export default function TorznabSearch({ onSelect }) {
                             <AddIcon />
                           </IconButton>
                         </ListItemSecondaryAction>
-                      </ListItem>
+                      </ListItemButton>
                       <Divider />
                     </React.Fragment>
                   )

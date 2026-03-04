@@ -1,5 +1,14 @@
 # Зависимости и обновления
 
+## MUI v6 (миграция с v5)
+
+- **@mui/material** и **@mui/icons-material** обновлены до **^6.0.0**.
+- **@mui/styles** удалён: стили переведены на **styled()** и **sx** из `@mui/material/styles` / `@mui/material`.
+- **ListItem с prop `button`** заменён на **ListItemButton** (FilterByCategory, RemoveAll, Sidebar, Search, TorznabSearch, SearchDialog, CustomMaterialUiStyles).
+- **DialogHeader**: вместо makeStyles используется **sx**.
+- **VideoPlayer**: вместо makeStyles/withStyles — **styled()** и **sx**; для Dialog используется **slotProps.paper.sx**.
+- **Grid** (SliderInput): оставлен старый API (`item xs`), в v6 он по-прежнему поддерживается; при желании можно перейти на Grid2 и `size={{ xs: ... }}`.
+
 ## Текущие изменения (устранение предупреждений)
 
 - **react-swipeable-views** заменён на **react-swipeable-views-react-18-fix** — форк с поддержкой React 18, API совместим (один импорт в `SettingsDialog.jsx`).

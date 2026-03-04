@@ -1,4 +1,4 @@
-import { ListItem } from '@mui/material'
+import { ListItemButton } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import { pwaFooterHeight } from 'components/App/PWAFooter/style'
 import styled, { css } from 'styled-components'
@@ -7,7 +7,7 @@ import { isStandaloneApp } from 'utils/Utils'
 
 import { standaloneMedia } from './standaloneMedia'
 
-export const StyledMenuButtonWrapper = styled(ListItem).attrs({ component: 'button' })`
+export const StyledMenuButtonWrapper = styled(ListItemButton)`
   ${standaloneMedia(css`
     width: 100%;
     height: 60px;

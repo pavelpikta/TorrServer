@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import SearchIcon from '@mui/icons-material/Search'
 import ListItemText from '@mui/material/ListItemText'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 
 import SearchDialog from './SearchDialog'
 
@@ -15,12 +15,12 @@ export default function SearchDialogButton({ isOffline, isLoading }) {
 
   return (
     <>
-      <ListItem button onClick={handleClickOpen} disabled={isOffline || isLoading}>
+      <ListItemButton onClick={handleClickOpen} disabled={isOffline || isLoading}>
         <ListItemIcon>
           <SearchIcon />
         </ListItemIcon>
         <ListItemText primary={t('Search')} />
-      </ListItem>
+      </ListItemButton>
 
       {isDialogOpen && <SearchDialog handleClose={handleClose} />}
     </>

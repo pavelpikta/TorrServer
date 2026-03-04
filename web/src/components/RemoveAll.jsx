@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -28,13 +28,13 @@ export default function RemoveAll({ isOffline, isLoading }) {
 
   return (
     <>
-      <ListItem disabled={isOffline || isLoading} button key={t('RemoveAll')} onClick={openDialog}>
+      <ListItemButton disabled={isOffline || isLoading} key={t('RemoveAll')} onClick={openDialog}>
         <ListItemIcon>
           <DeleteIcon />
         </ListItemIcon>
 
         <ListItemText primary={t('RemoveAll')} />
-      </ListItem>
+      </ListItemButton>
 
       <Dialog open={open} onClose={closeDialog}>
         <DialogTitle>{t('DeleteTorrents?')}</DialogTitle>
