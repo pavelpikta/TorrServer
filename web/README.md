@@ -11,6 +11,8 @@
 3. in `.env` file add TMDB api key
 4. `yarn start`
 
+Подробнее про предупреждения зависимостей и возможные обновления — см. [DEPENDENCIES.md](DEPENDENCIES.md).
+
 ### Eslint
 > Prettier will fix the code every time the code is saved
 
