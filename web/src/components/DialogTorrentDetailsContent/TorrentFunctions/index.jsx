@@ -9,6 +9,12 @@ import { useTranslation } from 'react-i18next'
 import { SmallLabel, MainSectionButtonGroup } from './style'
 import { SectionSubName } from '../style'
 
+const actionButtonSx = {
+  minHeight: 44,
+  minWidth: 120,
+  '@media (max-width: 480px)': { minHeight: 40, minWidth: 100 },
+}
+
 const TorrentFunctions = memo(
   ({ hash, viewedFileList, playableFileList, name, title, setViewedFileList }) => {
     const { t } = useTranslation()
@@ -43,13 +49,13 @@ const TorrentFunctions = memo(
 
             <MainSectionButtonGroup>
               <a style={{ textDecoration: 'none' }} href={fullPlaylistLink}>
-                <Button style={{ width: '100%' }} variant='contained' color='primary' size='large'>
+                <Button fullWidth variant='contained' color='primary' size='large' sx={actionButtonSx}>
                   {t('Full')}
                 </Button>
               </a>
 
               <a style={{ textDecoration: 'none' }} href={partialPlaylistLink}>
-                <Button style={{ width: '100%' }} variant='contained' color='primary' size='large'>
+                <Button fullWidth variant='contained' color='primary' size='large' sx={actionButtonSx}>
                   {t('FromLatestFile')}
                 </Button>
               </a>
@@ -58,10 +64,10 @@ const TorrentFunctions = memo(
         )}
         <SmallLabel mb={10}>{t('TorrentState')}</SmallLabel>
         <MainSectionButtonGroup>
-          <Button onClick={() => removeTorrentViews()} variant='contained' color='primary' size='large'>
+          <Button onClick={() => removeTorrentViews()} variant='contained' color='primary' size='large' sx={actionButtonSx}>
             {t('RemoveViews')}
           </Button>
-          <Button onClick={() => dropTorrent()} variant='contained' color='primary' size='large'>
+          <Button onClick={() => dropTorrent()} variant='contained' color='primary' size='large' sx={actionButtonSx}>
             {t('DropTorrent')}
           </Button>
         </MainSectionButtonGroup>
@@ -69,13 +75,13 @@ const TorrentFunctions = memo(
         <MainSectionButtonGroup>
           {(isOnlyOnePlayableFile || !viewedFileList?.length) && (
             <a style={{ textDecoration: 'none' }} href={fullPlaylistLink}>
-              <Button style={{ width: '100%' }} variant='contained' color='primary' size='large'>
+              <Button fullWidth variant='contained' color='primary' size='large' sx={actionButtonSx}>
                 {t('DownloadPlaylist')}
               </Button>
             </a>
           )}
           <CopyToClipboard text={magnet}>
-            <Button variant='contained' color='primary' size='large'>
+            <Button variant='contained' color='primary' size='large' sx={actionButtonSx}>
               {t('CopyHash')}
             </Button>
           </CopyToClipboard>

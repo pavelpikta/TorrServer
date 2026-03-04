@@ -3,10 +3,10 @@ import styled, { css } from 'styled-components'
 export const MainSectionButtonGroup = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 16px;
 
   :not(:last-child) {
-    margin-bottom: 30px;
+    margin-bottom: 24px;
   }
 
   @media (max-width: 1580px) {
@@ -15,6 +15,15 @@ export const MainSectionButtonGroup = styled.div`
 
   @media (max-width: 880px) {
     grid-template-columns: 1fr;
+    gap: 12px;
+
+    :not(:last-child) {
+      margin-bottom: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
   }
 `
 

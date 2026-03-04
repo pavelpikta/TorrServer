@@ -11,6 +11,8 @@ import { TableStyle, ShortTableWrapper, ShortTable } from './style'
 
 const { memo, useState } = require('react')
 
+const tableButtonSx = { minHeight: 36, minWidth: 82 }
+
 // russian episode detection support
 ptt.addHandler('episode', /(\d{1,4})[- |. ]серия|серия[- |. ](\d{1,4})/i, { type: 'integer' })
 ptt.addHandler('season', /sezon[- |. ](\d{1,3})|(\d{1,3})[- |. ]sezon/i, { type: 'integer' })
@@ -75,26 +77,26 @@ const Table = memo(
                     <td data-label='size'>{humanizeSize(length)}</td>
                     <td>
                       <div className='button-cell'>
-                        <Button onClick={() => preloadBuffer(id)} variant='outlined' color='primary' size='small'>
+                        <Button onClick={() => preloadBuffer(id)} variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                           {t('Preload')}
                         </Button>
                         {isApple && isInfuseUsed && (
                           <a style={{ textDecoration: 'none' }} href={infuseLink}>
-                            <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                            <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                               {t('Infuse')}
                             </Button>
                           </a>
                         )}
                         {isVlcUsed && (
                           <a style={{ textDecoration: 'none' }} href={`vlc://${fullLink}`}>
-                            <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                            <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                               VLC
                             </Button>
                           </a>
                         )}
                         {isMac && isIinaUsed && (
                           <a style={{ textDecoration: 'none' }} href={iinaLink}>
-                            <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                            <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                               IINA
                             </Button>
                           </a>
@@ -104,20 +106,20 @@ const Table = memo(
                         ) : (
                           shouldShowOpenLink && (
                             <a style={{ textDecoration: 'none' }} href={link} target='_blank' rel='noreferrer'>
-                              <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                              <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                                 {t('OpenLink')}
                               </Button>
                             </a>
                           )
                         )}
                         <CopyToClipboard text={fullLink}>
-                          <Button variant='outlined' color='primary' size='small'>
+                          <Button variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                             {t('CopyLink')}
                           </Button>
                         </CopyToClipboard>
                         {isSupported && shouldShowOpenLink && (
                           <a style={{ textDecoration: 'none' }} href={link} target='_blank' rel='noreferrer'>
-                            <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                            <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                               {t('OpenLink')}
                             </Button>
                           </a>
@@ -177,13 +179,13 @@ const Table = memo(
                     </div>
                   </div>
                   <div className='short-table-buttons'>
-                    <Button onClick={() => preloadBuffer(id)} variant='outlined' color='primary' size='small'>
+                    <Button onClick={() => preloadBuffer(id)} variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                       {t('Preload')}
                     </Button>
 
                     {isApple && isInfuseUsed && (
                       <a style={{ textDecoration: 'none' }} href={infuseLink}>
-                        <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                        <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                           {t('Infuse')}
                         </Button>
                       </a>
@@ -191,7 +193,7 @@ const Table = memo(
 
                     {isVlcUsed && (
                       <a style={{ textDecoration: 'none' }} href={`vlc://${fullLink}`}>
-                        <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                        <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                           VLC
                         </Button>
                       </a>
@@ -199,7 +201,7 @@ const Table = memo(
 
                     {isMac && isIinaUsed && (
                       <a style={{ textDecoration: 'none' }} href={iinaLink}>
-                        <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                        <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                           IINA
                         </Button>
                       </a>
@@ -207,14 +209,14 @@ const Table = memo(
 
                     {shouldShowOpenLink && (
                       <a style={{ textDecoration: 'none' }} href={link} target='_blank' rel='noreferrer'>
-                        <Button style={{ width: '100%' }} variant='outlined' color='primary' size='small'>
+                        <Button fullWidth variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                           {t('OpenLink')}
                         </Button>
                       </a>
                     )}
 
                     <CopyToClipboard text={fullLink}>
-                      <Button variant='outlined' color='primary' size='small'>
+                      <Button variant='outlined' color='primary' size='small' sx={tableButtonSx}>
                         {t('CopyLink')}
                       </Button>
                     </CopyToClipboard>

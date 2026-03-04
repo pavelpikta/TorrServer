@@ -215,7 +215,7 @@ export default function DialogTorrentDetailsContent({ closeDialog, torrent }) {
 
               <TorrentCache isMini cache={cache} isSnakeDebugMode={isSnakeDebugMode} />
               <Button
-                style={{ marginTop: '30px' }}
+                sx={{ marginTop: '30px', minHeight: 44, minWidth: 140 }}
                 variant='contained'
                 color='primary'
                 size='large'
@@ -231,12 +231,13 @@ export default function DialogTorrentDetailsContent({ closeDialog, torrent }) {
               {seasonAmount?.length > 1 && (
                 <>
                   <SectionSubName mb={7}>{t('SelectSeason')}</SectionSubName>
-                  <ButtonGroup style={{ marginBottom: '30px' }} color='secondary'>
+                  <ButtonGroup sx={{ marginBottom: '30px' }} color='secondary'>
                     {seasonAmount.map(season => (
                       <Button
                         key={season}
                         variant={selectedSeason === season ? 'contained' : 'outlined'}
                         onClick={() => setSelectedSeason(season)}
+                        sx={{ minHeight: 40, minWidth: 48 }}
                       >
                         {season}
                       </Button>
