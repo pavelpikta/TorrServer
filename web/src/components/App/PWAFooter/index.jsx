@@ -1,4 +1,4 @@
-import { CreditCard as CreditCardIcon } from '@material-ui/icons'
+import { CreditCard as CreditCardIcon } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import CloseServer from 'components/CloseServer'
 import { StyledMenuButtonWrapper } from 'style/CustomMaterialUiStyles'

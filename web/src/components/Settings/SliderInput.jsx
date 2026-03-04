@@ -1,4 +1,4 @@
-import { Grid, OutlinedInput, Slider } from '@material-ui/core'
+import { Grid, OutlinedInput, Slider } from '@mui/material'
 
 export default function SliderInput({
   isProMode,

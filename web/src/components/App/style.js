@@ -1,4 +1,4 @@
-import { IconButton } from '@material-ui/core'
+import { IconButton } from '@mui/material'
 import { rgba } from 'polished'
 import { standaloneMedia } from 'style/standaloneMedia'
 import styled, { css } from 'styled-components'

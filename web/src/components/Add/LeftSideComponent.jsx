@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { AddItemIcon, TorrentIcon } from 'icons'
-import TextField from '@material-ui/core/TextField'
-import { Cancel as CancelIcon } from '@material-ui/icons'
+import TextField from '@mui/material/TextField'
+import { Cancel as CancelIcon } from '@mui/icons-material'
 import { useState } from 'react'
 
 import {

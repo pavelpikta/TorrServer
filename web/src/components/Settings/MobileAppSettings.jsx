@@ -1,4 +1,4 @@
-import { FormControlLabel, FormGroup, FormHelperText, Switch, Link } from '@material-ui/core'
+import { FormControlLabel, FormGroup, FormHelperText, Switch, Link } from '@mui/material'
 import { isMacOS, isAppleDevice, isDesktop } from 'utils/Utils'
 import { useTranslation } from 'react-i18next'
 

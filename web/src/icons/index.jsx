@@ -1,4 +1,4 @@
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 
 export const NoImageIcon = ({ color }) => {
   const primary = useTheme().palette.primary.main

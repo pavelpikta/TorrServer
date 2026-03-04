@@ -290,7 +290,7 @@ More info at <https://github.com/YouROK/TorrServer/tree/master/web#readme>
 
 - Install **npm** and **yarn**
 - Go to the web directory
-- Run `NODE_OPTIONS=--openssl-legacy-provider yarn build`
+- Run `yarn build`
 
 #### Android
 

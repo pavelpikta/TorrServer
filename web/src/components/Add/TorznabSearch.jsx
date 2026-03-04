@@ -15,11 +15,11 @@ import {
   FormControl,
   InputLabel,
   useMediaQuery,
-} from '@material-ui/core'
+} from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { torznabSearchHost } from 'utils/Hosts'
-import { AddCircleOutline as AddIcon, ArrowUpward, ArrowDownward } from '@material-ui/icons'
+import { AddCircleOutline as AddIcon, ArrowUpward, ArrowDownward } from '@mui/icons-material'
 import { parseSizeToBytes, formatSizeToClassicUnits } from 'utils/Utils'
 
 export default function TorznabSearch({ onSelect }) {

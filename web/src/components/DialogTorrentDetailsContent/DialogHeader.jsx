@@ -1,6 +1,7 @@
-import { AppBar, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
-import { ArrowBack } from '@material-ui/icons'
+import { AppBar, IconButton, Toolbar, Typography } from '@mui/material'
+import { makeStyles } from '@mui/styles'
+import CloseIcon from '@mui/icons-material/Close'
+import { ArrowBack } from '@mui/icons-material'
 import { isStandaloneApp } from 'utils/Utils'
 
 const useStyles = makeStyles({

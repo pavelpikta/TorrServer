@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import SearchIcon from '@material-ui/icons/Search'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import SearchIcon from '@mui/icons-material/Search'
+import ListItemText from '@mui/material/ListItemText'
+import ListItem from '@mui/material/ListItem'
 
 import SearchDialog from './SearchDialog'
 

@@ -4,14 +4,14 @@ import {
   PlayArrow as PlayArrowIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import { getPeerString, humanizeSize, humanizeSpeed, removeRedundantCharacters } from 'utils/Utils'
 import { playlistTorrHost, streamHost, torrentsHost } from 'utils/Hosts'
 import { NoImageIcon } from 'icons'
 import DialogTorrentDetailsContent from 'components/DialogTorrentDetailsContent'
-import Dialog from '@material-ui/core/Dialog'
-import Slide from '@material-ui/core/Slide'
-import { Button, DialogActions, DialogTitle, useMediaQuery, useTheme } from '@material-ui/core'
+import Dialog from '@mui/material/Dialog'
+import Slide from '@mui/material/Slide'
+import { Button, DialogActions, DialogTitle, useMediaQuery, useTheme } from '@mui/material'
 import axios from 'axios'
 import ptt from 'parse-torrent-title'
 import { useTranslation } from 'react-i18next'

@@ -18,8 +18,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-} from '@material-ui/core'
-import { CloudDownload as DownloadIcon, ArrowUpward, ArrowDownward } from '@material-ui/icons'
+} from '@mui/material'
+import { CloudDownload as DownloadIcon, ArrowUpward, ArrowDownward } from '@mui/icons-material'
 import { torznabSearchHost, torrentsHost, settingsHost, searchHost } from 'utils/Hosts'
 import useOnStandaloneAppOutsideClick from 'utils/useOnStandaloneAppOutsideClick'
 import { StyledDialog, StyledHeader } from 'style/CustomMaterialUiStyles'

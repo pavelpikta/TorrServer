@@ -52,7 +52,6 @@ OUTPUT="${ROOT}/dist/TorrServer"
 
 #### Build web
 echo "Build web"
-export NODE_OPTIONS=--openssl-legacy-provider
 $GOBIN run gen_web.go
 
 #### Update api docs

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { FormGroup, FormHelperText, TextField } from '@material-ui/core'
+import { FormGroup, FormHelperText, TextField } from '@mui/material'
 
 import { SecondarySettingsContent, SettingSectionLabel } from './style'
 

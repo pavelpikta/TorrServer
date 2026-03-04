@@ -1,5 +1,5 @@
-import { ListItem } from '@material-ui/core'
-import Dialog from '@material-ui/core/Dialog'
+import { ListItem } from '@mui/material'
+import Dialog from '@mui/material/Dialog'
 import { pwaFooterHeight } from 'components/App/PWAFooter/style'
 import styled, { css } from 'styled-components'
 import { Header } from 'style/DialogStyles'
@@ -7,7 +7,7 @@ import { isStandaloneApp } from 'utils/Utils'
 
 import { standaloneMedia } from './standaloneMedia'
 
-export const StyledMenuButtonWrapper = styled(ListItem).attrs({ button: true })`
+export const StyledMenuButtonWrapper = styled(ListItem).attrs({ component: 'button' })`
   ${standaloneMedia(css`
     width: 100%;
     height: 60px;

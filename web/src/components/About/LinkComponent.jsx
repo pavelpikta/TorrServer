@@ -1,4 +1,4 @@
-import { GitHub as GitHubIcon } from '@material-ui/icons'
+import { GitHub as GitHubIcon } from '@mui/icons-material'
 
 import { LinkWrapper, LinkIcon } from './style'
 

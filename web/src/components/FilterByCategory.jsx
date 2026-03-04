@@ -1,6 +1,6 @@
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
 import { useTranslation } from 'react-i18next'
 
 export default function FilterByCategory({ categoryKey, categoryName, setGlobalFilterCategory, icon }) {

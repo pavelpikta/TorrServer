@@ -7,7 +7,7 @@ import {
   PhotoSizeSelectSmall as PhotoSizeSelectSmallIcon,
   Build as BuildIcon,
   Category as CategoryIcon,
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import { getPeerString, humanizeSize, humanizeSpeed } from 'utils/Utils'
 import { useTranslation } from 'react-i18next'
 import { GETTING_INFO, IN_DB, CLOSED, PRELOAD, WORKING } from 'torrentStates'
