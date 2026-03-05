@@ -20,7 +20,7 @@ import DonateDialog from 'components/Donate/DonateDialog'
 import useChangeLanguage from 'utils/useChangeLanguage'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledComponentsThemeProvider } from 'styled-components'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getTorrents, isStandaloneApp } from 'utils/Utils'
 import GlobalStyle from 'style/GlobalStyle'
 import { /* lightTheme, */ THEME_MODES, useMaterialUITheme } from 'style/materialUISetup'
@@ -47,12 +47,19 @@ export default function App() {
   const [currentLang, changeLang] = useChangeLanguage()
   const [isOffline, setIsOffline] = useState(false)
   const [globalCategoryFilter, setGlobalFilterCategory] = useState('all')
-  const { data: torrents, isLoading } = useQuery('torrents', getTorrents, {
+  const {
+    data: torrents,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['torrents'],
+    queryFn: getTorrents,
     retry: 1,
     refetchInterval: 1000,
-    onError: () => setIsOffline(true),
-    onSuccess: () => setIsOffline(false),
   })
+  useEffect(() => {
+    setIsOffline(!!isError)
+  }, [isError])
   const [sortABC, setSortABC] = useState(false)
   const handleClickSortABC = () => setSortABC(true)
   const handleClickSortDate = () => setSortABC(false)

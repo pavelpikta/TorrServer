@@ -8,7 +8,7 @@ import useChangeLanguage from 'utils/useChangeLanguage'
 import { useMediaQuery } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import usePreviousState from 'utils/usePreviousState'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getTorrents } from 'utils/Utils'
 import parseTorrent from 'parse-torrent'
 import { ButtonWrapper } from 'style/DialogStyles'
@@ -51,7 +51,12 @@ export default function AddDialog({
 
   const ref = useOnStandaloneAppOutsideClick(handleClose)
 
-  const { data: torrents } = useQuery('torrents', getTorrents, { retry: 1, refetchInterval: 1000 })
+  const { data: torrents } = useQuery({
+    queryKey: ['torrents'],
+    queryFn: getTorrents,
+    retry: 1,
+    refetchInterval: 1000,
+  })
 
   useEffect(() => {
     // getting hash from added torrent source

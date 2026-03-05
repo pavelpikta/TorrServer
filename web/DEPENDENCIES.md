@@ -27,6 +27,23 @@
   - **@types/node@^20.0.0** — для cosmiconfig-typescript-loader и ts-node;
   - **@babel/plugin-syntax-flow@^7.14.5** — для eslint-config-react-app → eslint-plugin-flowtype.
 
+## Предупреждения при `yarn install` (deprecated / unsupported)
+
+Большинство предупреждений при установке зависимостей приходят **не из вашего кода**, а из цепочки **react-scripts** (Create React App 5):
+
+- **react-scripts** фиксирует старые версии webpack, workbox-webpack-plugin, jest, eslint, babel-preset-react-app и десятки транзитивных зависимостей (glob, rimraf, workbox-*, abab, svgo и т.д.).
+- CRA 5 в режиме поддержки: новые мажорные версии react-scripts не выходят, зависимости внутри CRA обновлять нельзя без смены сборщика.
+
+**Что можно сделать:**
+
+| Подход | Эффект |
+|--------|--------|
+| **Обновить react-query → @tanstack/react-query v5** | Убирает предупреждения из цепочки react-query (broadcast-channel, rimraf, glob, match-sorter и т.д.). Небольшие правки в коде (новый API useQuery). |
+| **Подавить предупреждение Node.js** | `url.parse()` и др. — см. ниже, через `NODE_OPTIONS=--no-deprecation`. |
+| **Миграция на Vite** | Единственный способ убрать основную массу предупреждений: замена react-scripts на Vite даёт современный стек (ESM, актуальные зависимости, быстрая сборка). Требует переноса конфига (env → import.meta.env, полифиллы, CRACO → vite.config). |
+
+**Resolutions** для принудительной подстановки новых glob/rimraf и т.п. в дерево react-scripts **не рекомендуются**: возможны поломки сборки и тестов. Радикальное решение — переход на Vite (или другой современный бандлер).
+
 ## Предупреждение `url.parse()` (Node.js)
 
 При запуске `yarn` может выводиться:
@@ -51,7 +68,7 @@ yarn install
 | **ESLint 8** | eslint-config-react-app@7 ожидает eslint@^8. | Обновлено: ESLint 8.57, eslint-config-airbnb 19, eslint-config-prettier 9, eslint-plugin-prettier 5. После `yarn install` проверить `yarn lint`. |
 | **react-scripts 6** | Нет в CRA: проект на 5.x. Переход на Vite/другой бандлер — крупный рефакторинг. | Не менять без необходимости. |
 | **MUI v6** | Смена импортов и, возможно, темы/стилей. | Оставить MUI v5; при обновлении — следовать гайду миграции MUI. |
-| **react-query v4/v5** | Меняется API (useQuery и др.). | Оставить v3; при обновлении — заменить вызовы по changelog. |
+| **TanStack Query v5** | API объектный: useQuery({ queryKey, queryFn, ... }). | Обновлено: react-query заменён на @tanstack/react-query v5; предупреждения из цепочки react-query уходят. |
 | **Полифиллы Node (buffer, process, url…)** | Нужны из-за webpack 5 и пакетов вроде parse-torrent. Удаление возможно только при отказе от этих зависимостей или смене бандлера. | Не удалять; при смене стека — пересмотреть. |
 | **babel-minify / babel-preset-minify** | Используются в `.babelrc` (preset `minify` в `env.production`). CRA уже минифицирует сборку через Terser — возможное дублирование. | Оставлено для совместимости; при желании можно убрать preset и проверить размер бандла. |
 
