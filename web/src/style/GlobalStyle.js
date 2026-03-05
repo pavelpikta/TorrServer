@@ -25,8 +25,16 @@ export default createGlobalStyle`
     `)}
   }
 
-  button {
+  button,
+  [role="button"] {
     font-family: "Open Sans", sans-serif;
     letter-spacing: -0.1px;
+  }
+
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
   }
 `

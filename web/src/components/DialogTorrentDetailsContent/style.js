@@ -89,7 +89,7 @@ export const MainSection = styled.section`
 export const CacheSection = styled.section`
   ${({
     theme: {
-      dialogTorrentDetailsContent: { chacheSectionBGColor },
+      dialogTorrentDetailsContent: { cacheSectionBGColor },
     },
   }) => css`
     grid-area: cache;
@@ -97,7 +97,7 @@ export const CacheSection = styled.section`
     display: grid;
     align-content: start;
     grid-template-rows: min-content 1fr min-content;
-    background: ${chacheSectionBGColor};
+    background: ${cacheSectionBGColor};
 
     @media (max-width: 800px) {
       padding: 20px;

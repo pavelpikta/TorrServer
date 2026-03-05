@@ -129,13 +129,14 @@ export const TorrentListWrapper = styled.div`
   `)}
 `
 
-export const HeaderToggle = styled.div`
+export const HeaderToggle = styled.button.attrs({ type: 'button' })`
   ${({
     theme: {
       app: { headerToggleColor },
     },
   }) => css`
     cursor: pointer;
+    border: none;
     border-radius: 50%;
     background: ${headerToggleColor};
     height: 35px;
@@ -145,9 +146,15 @@ export const HeaderToggle = styled.div`
     display: grid;
     place-items: center;
     color: #fff;
+    padding: 0;
 
     :hover {
       background: ${rgba(headerToggleColor, 0.7)};
+    }
+
+    :focus-visible {
+      outline: 2px solid ${headerToggleColor};
+      outline-offset: 2px;
     }
 
     @media (max-width: 700px) {

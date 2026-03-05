@@ -227,6 +227,11 @@ export const StyledButton = styled.button`
       background: ${accentCardColor};
     }
 
+    :focus-visible {
+      outline: 2px solid ${accentCardColor};
+      outline-offset: 2px;
+    }
+
     > :first-child {
       margin-right: 10px;
     }
