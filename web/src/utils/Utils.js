@@ -6,7 +6,7 @@ import { torrentsHost } from './Hosts'
 export function humanizeSize(size) {
   if (!size) return ''
   const i = Math.floor(Math.log(size) / Math.log(1024))
-  return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${
+  return `${(size / 1024 ** i).toFixed(2) * 1} ${
     [i18n.t('B'), i18n.t('KB'), i18n.t('MB'), i18n.t('GB'), i18n.t('TB')][i]
   }`
 }
@@ -14,7 +14,7 @@ export function humanizeSize(size) {
 export function humanizeSpeed(speed) {
   if (!speed) return ''
   const i = Math.floor(Math.log(speed * 8) / Math.log(1000))
-  return `${((speed * 8) / Math.pow(1000, i)).toFixed(0) * 1} ${
+  return `${((speed * 8) / 1000 ** i).toFixed(0) * 1} ${
     [i18n.t('bps'), i18n.t('kbps'), i18n.t('Mbps'), i18n.t('Gbps'), i18n.t('Tbps')][i]
   }`
 }
@@ -134,7 +134,7 @@ export function formatSizeToClassicUnits(bytes) {
   if (!bytes || bytes === 0) return '0 B'
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  const value = bytes / Math.pow(1024, i)
+  const value = bytes / 1024 ** i
   return `${value.toFixed(i === 0 ? 0 : 2)} ${sizes[i]}`
 }
 
@@ -168,5 +168,5 @@ export function parseSizeToBytes(sizeStr) {
   const multipliers = { '': 1, K: 1, M: 2, G: 3, T: 4 }
   const multiplier = multipliers[unit] || 1
 
-  return Math.round(value * Math.pow(base, multiplier))
+  return Math.round(value * base ** multiplier)
 }

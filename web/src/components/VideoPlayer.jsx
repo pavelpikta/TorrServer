@@ -81,7 +81,7 @@ const PrettoSlider = styled(Slider)(({ theme }) => ({
   },
 }))
 
-const VideoWrapper = styled(Box)(({ theme }) => ({
+const VideoWrapper = styled(Box)(() => ({
   position: 'relative',
   width: '100%',
   backgroundColor: '#000',

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import IOSShareIcon from './IOSShareIcon'
 import { StyledWrapper, StyledHeader, StyledContent } from './style'
 
-export function PWAInstallationGuide() {
+export const PWAInstallationGuide = () => {
   const pwaNotificationIsClosed = JSON.parse(localStorage.getItem('pwaNotificationIsClosed'))
   const [isOpen, setIsOpen] = useState(!pwaNotificationIsClosed)
   const [shouldBeOpened, setShouldBeOpened] = useState(!pwaNotificationIsClosed)

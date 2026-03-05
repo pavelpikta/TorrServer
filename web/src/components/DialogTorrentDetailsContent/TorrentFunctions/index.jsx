@@ -18,7 +18,8 @@ const actionButtonSx = {
 const TorrentFunctions = memo(
   ({ hash, viewedFileList, playableFileList, name, title, setViewedFileList }) => {
     const { t } = useTranslation()
-    const latestViewedFileId = viewedFileList?.[viewedFileList?.length - 1]
+    const lastIndex = viewedFileList?.length != null ? viewedFileList.length - 1 : -1
+    const latestViewedFileId = lastIndex >= 0 ? viewedFileList[lastIndex] : undefined
     const latestViewedFile = playableFileList?.find(({ id }) => id === latestViewedFileId)?.path
     const isOnlyOnePlayableFile = playableFileList?.length === 1
     const latestViewedFileData = latestViewedFile && ptt.parse(latestViewedFile)
@@ -64,7 +65,13 @@ const TorrentFunctions = memo(
         )}
         <SmallLabel mb={10}>{t('TorrentState')}</SmallLabel>
         <MainSectionButtonGroup>
-          <Button onClick={() => removeTorrentViews()} variant='contained' color='primary' size='large' sx={actionButtonSx}>
+          <Button
+            onClick={() => removeTorrentViews()}
+            variant='contained'
+            color='primary'
+            size='large'
+            sx={actionButtonSx}
+          >
             {t('RemoveViews')}
           </Button>
           <Button onClick={() => dropTorrent()} variant='contained' color='primary' size='large' sx={actionButtonSx}>

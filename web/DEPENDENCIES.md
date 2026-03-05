@@ -15,6 +15,18 @@
 - Добавлены **resolutions** в `package.json` для фиксации React 18 в дереве зависимостей.
 - Добавлены недостающие peer-зависимости: **react-is**, **@types/react** (dev), **eslint-plugin-import**, **eslint-plugin-jsx-a11y**, **eslint-plugin-react**, **eslint-plugin-react-hooks** — чтобы убрать предупреждения от styled-components, MUI и eslint-config-airbnb.
 
+### Обновление ESLint и peer-зависимостей (2025)
+
+- **ESLint** обновлён до **^8.57.0** (eslint-config-react-app@7 ожидает eslint@^8).
+- **eslint-config-airbnb** обновлён до **^19.0.4** (совместимость с ESLint 8).
+- **eslint-config-prettier** → **^9.1.0**, **eslint-plugin-prettier** → **^5.1.0**.
+- Добавлены явные peer-зависимости для устранения предупреждений:
+  - **postcss@^8.4.0** — для @craco/craco → autoprefixer;
+  - **typescript@^5.0.0** — для react-scripts (fork-ts-checker-webpack-plugin, tsutils), @craco/craco (cosmiconfig-typescript-loader, ts-node);
+  - **@types/node@^20.0.0** — для cosmiconfig-typescript-loader и ts-node;
+  - **@babel/plugin-syntax-flow@^7.14.5** — для eslint-config-react-app → eslint-plugin-flowtype.
+- Предупреждение **react-event-listener** (вложенная зависимость react-swipeable-views-react-18-fix) о peer `react@^16.3.0` можно игнорировать: используется React 18, форк совместим.
+
 ## Предупреждение `url.parse()` (Node.js)
 
 При запуске `yarn` может выводиться:
@@ -36,11 +48,12 @@ yarn install
 
 | Пакет / тема | Влияние на код | Рекомендация |
 |--------------|----------------|---------------|
-| **ESLint 8** | eslint-config-react-app@7 ожидает eslint@^8. При переходе на ESLint 8 возможны изменения в правилах и конфиге (.eslintrc). | Пока оставить ESLint 7; при переходе — проверить `yarn lint` и правила. |
+| **ESLint 8** | eslint-config-react-app@7 ожидает eslint@^8. | Обновлено: ESLint 8.57, eslint-config-airbnb 19, eslint-config-prettier 9, eslint-plugin-prettier 5. После `yarn install` проверить `yarn lint`. |
 | **react-scripts 6** | Нет в CRA: проект на 5.x. Переход на Vite/другой бандлер — крупный рефакторинг. | Не менять без необходимости. |
 | **MUI v6** | Смена импортов и, возможно, темы/стилей. | Оставить MUI v5; при обновлении — следовать гайду миграции MUI. |
 | **react-query v4/v5** | Меняется API (useQuery и др.). | Оставить v3; при обновлении — заменить вызовы по changelog. |
 | **Полифиллы Node (buffer, process, url…)** | Нужны из-за webpack 5 и пакетов вроде parse-torrent. Удаление возможно только при отказе от этих зависимостей или смене бандлера. | Не удалять; при смене стека — пересмотреть. |
+| **babel-minify / babel-preset-minify** | Используются в `.babelrc` (preset `minify` в `env.production`). CRA уже минифицирует сборку через Terser — возможное дублирование. | Оставлено для совместимости; при желании можно убрать preset и проверить размер бандла. |
 
 ## Проверка после обновлений
 

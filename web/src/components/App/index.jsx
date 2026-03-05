@@ -1,5 +1,5 @@
 import CssBaseline from '@mui/material/CssBaseline'
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useMemo, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import {
   Menu as MenuIcon,
@@ -65,7 +65,7 @@ export default function App() {
     <>
       <GlobalStyle />
 
-      <DarkModeContext.Provider value={{ isDarkMode }}>
+      <DarkModeContext.Provider value={useMemo(() => ({ isDarkMode }), [isDarkMode])}>
         <MuiThemeProvider theme={muiTheme}>
           <StyledComponentsThemeProvider
             theme={getStyledComponentsTheme(isDarkMode ? THEME_MODES.DARK : THEME_MODES.LIGHT)}

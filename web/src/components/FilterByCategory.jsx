@@ -10,11 +10,9 @@ export default function FilterByCategory({ categoryKey, categoryName, setGlobalF
   const { t } = useTranslation()
 
   return (
-    <>
-      <ListItemButton key={categoryKey} onClick={onClick}>
-        <ListItemIcon>{icon}</ListItemIcon>
-        <ListItemText primary={t(categoryName)} />
-      </ListItemButton>
-    </>
+    <ListItemButton key={categoryKey} onClick={onClick}>
+      <ListItemIcon>{icon}</ListItemIcon>
+      <ListItemText primary={t(categoryName)} />
+    </ListItemButton>
   )
 }

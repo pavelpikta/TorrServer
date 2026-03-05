@@ -77,7 +77,13 @@ const Table = memo(
                     <td data-label='size'>{humanizeSize(length)}</td>
                     <td>
                       <div className='button-cell'>
-                        <Button onClick={() => preloadBuffer(id)} variant='outlined' color='primary' size='small' sx={tableButtonSx}>
+                        <Button
+                          onClick={() => preloadBuffer(id)}
+                          variant='outlined'
+                          color='primary'
+                          size='small'
+                          sx={tableButtonSx}
+                        >
                           {t('Preload')}
                         </Button>
                         {isApple && isInfuseUsed && (
@@ -179,7 +185,13 @@ const Table = memo(
                     </div>
                   </div>
                   <div className='short-table-buttons'>
-                    <Button onClick={() => preloadBuffer(id)} variant='outlined' color='primary' size='small' sx={tableButtonSx}>
+                    <Button
+                      onClick={() => preloadBuffer(id)}
+                      variant='outlined'
+                      color='primary'
+                      size='small'
+                      sx={tableButtonSx}
+                    >
                       {t('Preload')}
                     </Button>
 

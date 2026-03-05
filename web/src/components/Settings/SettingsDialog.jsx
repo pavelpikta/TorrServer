@@ -147,48 +147,46 @@ export default function SettingsDialog({ handleClose }) {
 
       <Content isLoading={!settings}>
         {settings ? (
-          <>
-            <SwipeableViews
-              axis={direction === 'rtl' ? 'x-reverse' : 'x'}
-              index={selectedTab}
-              onChangeIndex={handleChangeIndex}
-            >
-              <TabPanel value={selectedTab} index={0} dir={direction}>
-                <PrimarySettingsComponent
-                  settings={settings}
-                  inputForm={inputForm}
-                  cachePercentage={cachePercentage}
-                  preloadCachePercentage={preloadCachePercentage}
-                  cacheSize={cacheSize}
-                  isProMode={isProMode}
-                  setCacheSize={setCacheSize}
-                  setCachePercentage={setCachePercentage}
-                  setPreloadCachePercentage={setPreloadCachePercentage}
-                  updateSettings={updateSettings}
-                />
-              </TabPanel>
+          <SwipeableViews
+            axis={direction === 'rtl' ? 'x-reverse' : 'x'}
+            index={selectedTab}
+            onChangeIndex={handleChangeIndex}
+          >
+            <TabPanel value={selectedTab} index={0} dir={direction}>
+              <PrimarySettingsComponent
+                settings={settings}
+                inputForm={inputForm}
+                cachePercentage={cachePercentage}
+                preloadCachePercentage={preloadCachePercentage}
+                cacheSize={cacheSize}
+                isProMode={isProMode}
+                setCacheSize={setCacheSize}
+                setCachePercentage={setCachePercentage}
+                setPreloadCachePercentage={setPreloadCachePercentage}
+                updateSettings={updateSettings}
+              />
+            </TabPanel>
 
-              <TabPanel value={selectedTab} index={1} dir={direction}>
-                <SecondarySettingsComponent settings={settings} inputForm={inputForm} updateSettings={updateSettings} />
-              </TabPanel>
+            <TabPanel value={selectedTab} index={1} dir={direction}>
+              <SecondarySettingsComponent settings={settings} inputForm={inputForm} updateSettings={updateSettings} />
+            </TabPanel>
 
-              <TabPanel value={selectedTab} index={2} dir={direction}>
-                <TorznabSettings settings={settings} inputForm={inputForm} updateSettings={updateSettings} />
-              </TabPanel>
+            <TabPanel value={selectedTab} index={2} dir={direction}>
+              <TorznabSettings settings={settings} inputForm={inputForm} updateSettings={updateSettings} />
+            </TabPanel>
 
-              <TabPanel value={selectedTab} index={3} dir={direction}>
-                <TMDBSettings settings={settings} updateSettings={updateSettings} />
-                <MobileAppSettings
-                  isVlcUsed={isVlcUsed}
-                  setIsVlcUsed={setIsVlcUsed}
-                  isInfuseUsed={isInfuseUsed}
-                  setIsInfuseUsed={setIsInfuseUsed}
-                  isIinaUsed={isIinaUsed}
-                  setIsIinaUsed={setIsIinaUsed}
-                />
-              </TabPanel>
-            </SwipeableViews>
-          </>
+            <TabPanel value={selectedTab} index={3} dir={direction}>
+              <TMDBSettings settings={settings} updateSettings={updateSettings} />
+              <MobileAppSettings
+                isVlcUsed={isVlcUsed}
+                setIsVlcUsed={setIsVlcUsed}
+                isInfuseUsed={isInfuseUsed}
+                setIsInfuseUsed={setIsInfuseUsed}
+                isIinaUsed={isIinaUsed}
+                setIsIinaUsed={setIsIinaUsed}
+              />
+            </TabPanel>
+          </SwipeableViews>
         ) : (
           <CircularProgress color='secondary' />
         )}
