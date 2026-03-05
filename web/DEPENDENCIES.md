@@ -11,7 +11,7 @@
 
 ## Текущие изменения (устранение предупреждений)
 
-- **react-swipeable-views** заменён на **react-swipeable-views-react-18-fix** — форк с поддержкой React 18, API совместим (один импорт в `SettingsDialog.jsx`).
+- **react-swipeable-views** удалён. Вместо него для свайпа между вкладками в диалоге настроек используется **react-swipeable** (FormidableLabs): хук `useSwipeable` с `onSwipedLeft` / `onSwipedRight`, поддержка React 18/19, без устаревших зависимостей. Переключение вкладок — по клику (MUI Tabs) и по свайпу (react-swipeable на контенте). Учтён RTL (`direction`): в RTL-режиме направление свайпа инвертируется.
 - Добавлены **resolutions** в `package.json` для фиксации React 18 в дереве зависимостей.
 - Добавлены недостающие peer-зависимости: **react-is**, **@types/react** (dev), **eslint-plugin-import**, **eslint-plugin-jsx-a11y**, **eslint-plugin-react**, **eslint-plugin-react-hooks** — чтобы убрать предупреждения от styled-components, MUI и eslint-config-airbnb.
 
@@ -20,12 +20,12 @@
 - **ESLint** обновлён до **^8.57.0** (eslint-config-react-app@7 ожидает eslint@^8).
 - **eslint-config-airbnb** обновлён до **^19.0.4** (совместимость с ESLint 8).
 - **eslint-config-prettier** → **^9.1.0**, **eslint-plugin-prettier** → **^5.1.0**.
+- **Prettier** обновлён до **^3.4.0** (требуется для eslint-plugin-prettier@5, peer `prettier@>=3.0.0`). Конфиг в `.eslintrc` совместим с Prettier 3.
 - Добавлены явные peer-зависимости для устранения предупреждений:
   - **postcss@^8.4.0** — для @craco/craco → autoprefixer;
   - **typescript@^5.0.0** — для react-scripts (fork-ts-checker-webpack-plugin, tsutils), @craco/craco (cosmiconfig-typescript-loader, ts-node);
   - **@types/node@^20.0.0** — для cosmiconfig-typescript-loader и ts-node;
   - **@babel/plugin-syntax-flow@^7.14.5** — для eslint-config-react-app → eslint-plugin-flowtype.
-- Предупреждение **react-event-listener** (вложенная зависимость react-swipeable-views-react-18-fix) о peer `react@^16.3.0` можно игнорировать: используется React 18, форк совместим.
 
 ## Предупреждение `url.parse()` (Node.js)
 

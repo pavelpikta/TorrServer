@@ -30,7 +30,7 @@
     "react-measure": "^2.5.2",
     "react-query": "^3.39.3",
     "react-scripts": "5.0.1",
-    "react-swipeable-views-react-18-fix": "^0.14.1",
+    "react-swipeable": "^7.0.2",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "styled-components": "^5.3.11",
@@ -83,7 +83,7 @@
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "postcss": "^8.4.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.4.0",
     "react-is": "^18.2.0",
     "typescript": "^5.0.0"
   },

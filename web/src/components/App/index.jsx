@@ -123,16 +123,16 @@ export default function App() {
                         currentLang === 'en'
                           ? changeLang('ru')
                           : currentLang === 'ru'
-                          ? changeLang('ua')
-                          : currentLang === 'ua'
-                          ? changeLang('zh')
-                          : currentLang === 'zh'
-                          ? changeLang('bg')
-                          : currentLang === 'bg'
-                          ? changeLang('fr')
-                          : currentLang === 'fr'
-                          ? changeLang('ro')
-                          : changeLang('en')
+                            ? changeLang('ua')
+                            : currentLang === 'ua'
+                              ? changeLang('zh')
+                              : currentLang === 'zh'
+                                ? changeLang('bg')
+                                : currentLang === 'bg'
+                                  ? changeLang('fr')
+                                  : currentLang === 'fr'
+                                    ? changeLang('ro')
+                                    : changeLang('en')
                       }
                     >
                       {currentLang.toUpperCase()}

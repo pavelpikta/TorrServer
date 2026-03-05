@@ -7,7 +7,10 @@ export const Header = styled.div`
     font-size: 20px;
     color: #fff;
     font-weight: 600;
-    box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+    box-shadow:
+      0px 2px 4px -1px rgb(0 0 0 / 20%),
+      0px 4px 5px 0px rgb(0 0 0 / 14%),
+      0px 1px 10px 0px rgb(0 0 0 / 12%);
     padding: 15px 24px;
     position: relative;
   `}

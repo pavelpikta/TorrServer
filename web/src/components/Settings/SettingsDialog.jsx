@@ -3,10 +3,10 @@ import Button from '@mui/material/Button'
 import Switch from '@mui/material/Switch'
 import { FormControlLabel, useMediaQuery, useTheme, AppBar } from '@mui/material'
 import { settingsHost } from 'utils/Hosts'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useSwipeable } from 'react-swipeable'
 import { useTranslation } from 'react-i18next'
 import { clearTMDBCache } from 'components/Add/helpers'
-import SwipeableViews from 'react-swipeable-views-react-18-fix'
 import CircularProgress from '@mui/material/CircularProgress'
 import { StyledDialog } from 'style/CustomMaterialUiStyles'
 import useOnStandaloneAppOutsideClick from 'utils/useOnStandaloneAppOutsideClick'
@@ -94,7 +94,16 @@ export default function SettingsDialog({ handleClose }) {
 
   const updateSettings = newProps => setSettings({ ...settings, ...newProps })
   const handleChange = (_, newValue) => setSelectedTab(newValue)
-  const handleChangeIndex = index => setSelectedTab(index)
+
+  const tabCount = 4
+  const goNext = useCallback(() => setSelectedTab(i => (i < tabCount - 1 ? i + 1 : i)), [])
+  const goPrev = useCallback(() => setSelectedTab(i => (i > 0 ? i - 1 : i)), [])
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: direction === 'rtl' ? goPrev : goNext,
+    onSwipedRight: direction === 'rtl' ? goNext : goPrev,
+    trackTouch: true,
+    trackMouse: false,
+  })
 
   return (
     <StyledDialog open onClose={handleClose} fullScreen={fullScreen} fullWidth maxWidth='md' ref={ref}>
@@ -145,13 +154,9 @@ export default function SettingsDialog({ handleClose }) {
         </StyledTabs>
       </AppBar>
 
-      <Content isLoading={!settings}>
+      <Content isLoading={!settings} {...swipeHandlers}>
         {settings ? (
-          <SwipeableViews
-            axis={direction === 'rtl' ? 'x-reverse' : 'x'}
-            index={selectedTab}
-            onChangeIndex={handleChangeIndex}
-          >
+          <>
             <TabPanel value={selectedTab} index={0} dir={direction}>
               <PrimarySettingsComponent
                 settings={settings}
@@ -186,7 +191,7 @@ export default function SettingsDialog({ handleClose }) {
                 setIsIinaUsed={setIsIinaUsed}
               />
             </TabPanel>
-          </SwipeableViews>
+          </>
         ) : (
           <CircularProgress color='secondary' />
         )}

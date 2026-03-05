@@ -76,15 +76,15 @@ const TorrentCache = ({ cache, isMini, isSnakeDebugMode }) => {
       ctx.fillStyle = inProgress
         ? createGradient(ctx, percentage, theme, settingsTarget)
         : isCompleted
-        ? completeColor
-        : backgroundColor
+          ? completeColor
+          : backgroundColor
       ctx.strokeStyle = isReader
         ? readerColor
         : inProgress || isCompleted
-        ? completeColor
-        : isReaderRange
-        ? rangeColor
-        : borderColor
+          ? completeColor
+          : isReaderRange
+            ? rangeColor
+            : borderColor
 
       ctx.translate(x, y)
       ctx.fillRect(0, 0, pieceSize, pieceSize)
