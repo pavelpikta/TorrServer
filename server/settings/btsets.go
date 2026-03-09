@@ -62,6 +62,7 @@ type BTSets struct {
 	DisableUPNP       bool
 	DisableDHT        bool
 	DisablePEX        bool
+	EnableLPD         bool // Local Peer Discovery (BEP 14)
 	DisableUpload     bool
 	DownloadRateLimit int // in kb, 0 - inf
 	UploadRateLimit   int // in kb, 0 - inf

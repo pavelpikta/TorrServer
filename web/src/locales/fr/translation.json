@@ -135,6 +135,7 @@
     "DHT": "DHT (Table de hachage distribuée)",
     "DisableDHTHint": "Désactiver s'il n'y a pas de réseau après le démarrage du serveur",
     "DisablePEXHint": "Mieux vaut laisser activé",
+    "EnableLPDHint": "Découvrir les pairs sur le réseau local (ex. Transmission sur le même serveur). Streaming plus rapide depuis les clients locaux.",
     "DisableTCPHint": "Ne pas désactiver sans μTP activé",
     "DisableUPNPHint": "Ouvrir automatiquement le port sur le routeur",
     "DisableUTPHint": "Recommandé de désactiver sous Windows",

@@ -18,6 +18,7 @@ export default {
   DisableUPNP: false,
   DisableDHT: false,
   DisablePEX: false,
+  EnableLPD: false,
   DisableUpload: false,
   DownloadRateLimit: 0,
   UploadRateLimit: 0,

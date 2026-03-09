@@ -135,6 +135,7 @@
     "DHT": "DHT (Distributed Hash Table)",
     "DisableDHTHint": "Деактивирайте, ако няма мрежа след стартиране на сървъра",
     "DisablePEXHint": "По-добре оставете включено",
+    "EnableLPDHint": "Откриване на пиъри в локалната мрежа (напр. Transmission на същия сървър). По-бързо стрийминг от локални клиенти.",
     "DisableTCPHint": "Не деактивирайте без активиран μTP",
     "DisableUPNPHint": "Автоматично отваряне на порт на рутера",
     "DisableUTPHint": "Препоръчва се да се деактивира в Windows OS",

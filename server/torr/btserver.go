@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"server/proxy"
+	"server/torr/lpd"
 	"sync"
 
 	"github.com/anacrolix/publicip"
@@ -29,6 +30,8 @@ type BTServer struct {
 	storage *torrstor.Storage
 
 	torrents map[metainfo.Hash]*Torrent
+
+	lpdServer *lpd.Server
 
 	mu sync.Mutex
 }
@@ -69,6 +72,26 @@ func (bt *BTServer) Connect() error {
 	bt.torrents = make(map[metainfo.Hash]*Torrent)
 	InitApiHelper(bt)
 
+	if settings.BTsets.EnableLPD {
+		bt.lpdServer = lpd.New(bt.client,
+			func() map[metainfo.Hash]*torrent.Torrent {
+				list := bt.ListTorrents()
+				m := make(map[metainfo.Hash]*torrent.Torrent)
+				for h, t := range list {
+					if t != nil && t.Torrent != nil {
+						m[h] = t.Torrent
+					}
+				}
+				return m
+			},
+			func() int {
+				return bt.client.LocalPort()
+			})
+		if err := bt.lpdServer.Start(); err != nil {
+			log.Println("LPD start failed:", err)
+		}
+	}
+
 	proxy.Start()
 	return err
 }
@@ -76,6 +99,10 @@ func (bt *BTServer) Connect() error {
 func (bt *BTServer) Disconnect() {
 	bt.mu.Lock()
 	defer bt.mu.Unlock()
+	if bt.lpdServer != nil {
+		bt.lpdServer.Stop()
+		bt.lpdServer = nil
+	}
 	if bt.client != nil {
 		bt.client.Close()
 		bt.client = nil

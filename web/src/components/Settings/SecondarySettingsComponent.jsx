@@ -58,6 +58,7 @@ export default function SecondarySettingsComponent({ settings, inputForm }) {
     DisableUPNP,
     DisableDHT,
     DisablePEX,
+    EnableLPD,
     DisableUpload,
     DownloadRateLimit,
     UploadRateLimit,
@@ -195,6 +196,14 @@ export default function SecondarySettingsComponent({ settings, inputForm }) {
           labelPlacement='start'
         />
         <FormHelperText margin='none'>{t('SettingsDialog.DisablePEXHint')}</FormHelperText>
+      </FormGroup>
+      <FormGroup>
+        <FormControlLabel
+          control={<Switch checked={!!EnableLPD} onChange={inputForm} id='EnableLPD' color='secondary' />}
+          label='LPD (Local Peer Discovery)'
+          labelPlacement='start'
+        />
+        <FormHelperText margin='none'>{t('SettingsDialog.EnableLPDHint')}</FormHelperText>
       </FormGroup>
       <FormGroup>
         <FormControlLabel

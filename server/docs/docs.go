@@ -914,6 +914,10 @@ const docTemplate = `{
                     "description": "BT Config",
                     "type": "boolean"
                 },
+                "enableLPD": {
+                    "description": "Local Peer Discovery (BEP 14)",
+                    "type": "boolean"
+                },
                 "enableProxy": {
                     "description": "P2P Proxy",
                     "type": "boolean"

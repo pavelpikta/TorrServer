@@ -135,6 +135,7 @@
     "DHT": "DHT (Distributed Hash Table)",
     "DisableDHTHint": "Dezactivează dacă nu există rețea după pornirea serverului",
     "DisablePEXHint": "Mai bine lăsați activată opțiunea",
+    "EnableLPDHint": "Descoperirea peer-ilor în rețeaua locală (ex. Transmission pe același server). Streaming mai rapid de la clienți locali.",
     "DisableTCPHint": "Nu dezactivați fără μTP activat",
     "DisableUPNPHint": "Deschidere automată port pe router",
     "DisableUTPHint": "Se recomandă dezactivarea în sistemul de operare Windows",
