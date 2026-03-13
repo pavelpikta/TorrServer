@@ -62,9 +62,25 @@ export const SettingsHeader = styled(StyledHeader)`
   grid-auto-flow: column;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+
+  > div:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 
   @media (max-width: 340px) {
     grid-auto-flow: row;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 `
 
@@ -85,6 +101,12 @@ export const FooterSection = styled.div`
     @media (max-width: 500px) {
       grid-auto-flow: row;
       justify-content: stretch;
+      padding: 16px 12px;
+      gap: 8px;
+    }
+
+    @media (max-width: 360px) {
+      padding: 12px 10px;
     }
   `}
 `
@@ -104,6 +126,7 @@ export const Content = styled.div`
     background: ${contentBG};
     overflow: auto;
     flex: 1;
+    -webkit-overflow-scrolling: touch;
 
     ${isLoading &&
     css`
@@ -117,9 +140,20 @@ export const Content = styled.div`
 export const PreloadCacheValue = styled.div`
   ${({ color }) => css`
     display: grid;
-    grid-template-columns: max-content 100px 1fr;
+    grid-template-columns: auto minmax(90px, max-content) 1fr;
     gap: 10px;
     align-items: flex-start;
+    min-width: 0;
+
+    > div:first-of-type {
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    > div:last-of-type {
+      min-width: 0;
+      word-break: break-word;
+    }
 
     :not(:last-child) {
       margin-bottom: 5px;
@@ -132,10 +166,11 @@ export const PreloadCacheValue = styled.div`
       height: 16px;
       border-radius: 50%;
       margin-top: 2px;
+      flex-shrink: 0;
     }
 
     @media (max-width: 600px) {
-      grid-template-columns: max-content 80px 1fr;
+      grid-template-columns: auto minmax(80px, max-content) 1fr;
       gap: 8px;
       font-size: 13px;
 
@@ -145,9 +180,24 @@ export const PreloadCacheValue = styled.div`
       }
     }
 
-    @media (max-width: 400px) {
-      grid-template-columns: max-content 1fr;
+    @media (max-width: 360px) {
+      grid-template-columns: auto 1fr;
+      gap: 6px;
       font-size: 12px;
+
+      > div:first-of-type {
+        grid-column: 2;
+      }
+
+      > div:last-of-type {
+        grid-column: 1 / -1;
+        padding-left: 18px;
+      }
+
+      :before {
+        grid-row: 1 / -1;
+        align-self: start;
+      }
     }
   `}
 `
@@ -341,6 +391,7 @@ export const PreloadCachePercentage = styled.div.attrs(({ value }) => ({
     color: #000;
     margin-bottom: 10px;
     position: relative;
+    min-width: 0;
 
     :before {
       content: '${label}';
@@ -359,6 +410,22 @@ export const PreloadCachePercentage = styled.div.attrs(({ value }) => ({
       left: 0;
       border-radius: 4px;
       filter: opacity(0.15);
+    }
+
+    @media (max-width: 600px) {
+      padding: 10px 12px;
+
+      :before {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      padding: 8px 10px;
+
+      :before {
+        font-size: 14px;
+      }
     }
   `}
 `

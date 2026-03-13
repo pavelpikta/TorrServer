@@ -112,7 +112,7 @@ export default function PrimarySettingsComponent({
         <div>
           <CacheStorageLocationLabel />
 
-          <div style={{ display: 'grid', gridAutoFlow: 'column' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
             <StorageButton small onClick={() => updateSettings({ UseDisk: false })}>
               <StorageIconWrapper small>
                 <RAMIcon color='#323637' />
