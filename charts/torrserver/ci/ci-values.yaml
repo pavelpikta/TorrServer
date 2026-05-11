@@ -1,0 +1,20 @@
+# CI test values — no persistence, minimal resources
+persistence:
+  config:
+    enabled: false
+  data:
+    enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 10124Mi
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: false

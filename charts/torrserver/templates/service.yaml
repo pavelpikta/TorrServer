@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "torrserver.fullname" . }}
+  labels:
+    {{- include "torrserver.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    {{- if .Values.ssl.enabled }}
+    - port: {{ .Values.ssl.port }}
+      targetPort: https
+      protocol: TCP
+      name: https
+    {{- end }}
+    {{- if .Values.service.torrentPort.enabled }}
+    - port: {{ .Values.service.torrentPort.port }}
+      targetPort: torrent
+      protocol: TCP
+      name: torrent
+    {{- end }}
+  selector:
+    {{- include "torrserver.selectorLabels" . | nindent 4 }}

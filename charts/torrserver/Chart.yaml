@@ -1,0 +1,17 @@
+apiVersion: v2
+name: torrserver
+description: A Helm chart for TorrServer - Torrent stream server
+type: application
+version: 1.0.0
+appVersion: "MatriX.141"
+keywords:
+  - torrserver
+  - torrent
+  - streaming
+  - media
+home: https://github.com/YouROK/TorrServer
+sources:
+  - https://github.com/YouROK/TorrServer
+maintainers:
+  - name: devops
+icon: https://github.com/YouROK/TorrServer/raw/master/web/src/assets/TorrServer.svg

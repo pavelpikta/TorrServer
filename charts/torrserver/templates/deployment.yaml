@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "torrserver.fullname" . }}
+  labels:
+    {{- include "torrserver.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "torrserver.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "torrserver.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "torrserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ include "torrserver.imageTag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: TS_PORT
+              value: {{ .Values.config.port | quote }}
+            - name: TS_CONF_PATH
+              value: {{ .Values.config.confPath | quote }}
+            - name: TS_TORR_DIR
+              value: {{ .Values.config.torrDir | quote }}
+            - name: TS_HTTPAUTH
+              value: {{ ternary "1" "0" .Values.config.httpAuth | quote }}
+            - name: TS_RDB
+              value: {{ ternary "1" "0" .Values.config.readOnlyDb | quote }}
+            - name: TS_DONTKILL
+              value: {{ ternary "1" "0" .Values.config.dontKill | quote }}
+            {{- if .Values.config.logPath }}
+            - name: TS_LOG_PATH
+              value: {{ .Values.config.logPath | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.config.port }}
+              protocol: TCP
+            {{- if .Values.ssl.enabled }}
+            - name: https
+              containerPort: {{ .Values.ssl.port }}
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.service.torrentPort.enabled }}
+            - name: torrent
+              containerPort: {{ .Values.service.torrentPort.port }}
+              protocol: TCP
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: {{ .Values.persistence.config.mountPath }}
+            {{- end }}
+            {{- if .Values.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.data.mountPath }}
+            {{- end }}
+            {{- if and .Values.ssl.enabled .Values.ssl.existingSecret }}
+            - name: ssl-certs
+              mountPath: /opt/ts/ssl
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        {{- if .Values.persistence.config.enabled }}
+        - name: config
+          {{- if .Values.persistence.config.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.config.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "torrserver.fullname" . }}-config
+          {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.data.enabled }}
+        - name: data
+          {{- if .Values.persistence.data.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.data.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "torrserver.fullname" . }}-data
+          {{- end }}
+        {{- end }}
+        {{- if and .Values.ssl.enabled .Values.ssl.existingSecret }}
+        - name: ssl-certs
+          secret:
+            secretName: {{ .Values.ssl.existingSecret }}
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

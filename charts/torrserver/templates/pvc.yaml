@@ -1,0 +1,35 @@
+{{- if and .Values.persistence.config.enabled (not .Values.persistence.config.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "torrserver.fullname" . }}-config
+  labels:
+    {{- include "torrserver.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.config.accessMode }}
+  {{- if .Values.persistence.config.storageClass }}
+  storageClassName: {{ .Values.persistence.config.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.config.size }}
+{{- end }}
+---
+{{- if and .Values.persistence.data.enabled (not .Values.persistence.data.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "torrserver.fullname" . }}-data
+  labels:
+    {{- include "torrserver.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.data.accessMode }}
+  {{- if .Values.persistence.data.storageClass }}
+  storageClassName: {{ .Values.persistence.data.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.data.size }}
+{{- end }}
