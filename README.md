@@ -350,6 +350,27 @@ local:127.0.0.1
 # at the beginning of the line, comment
 ```
 
+## Blacklist Referer
+
+Block HTTP requests that come from unwanted sites (for example mirror pages that embed your TorrServer streams).
+
+Some domains are blocked by default. Subdomains are blocked too (e.g. `mirror.example.com` when `example.com` is listed).
+
+To block additional domains, create a list file in the same directory with `config.db`:
+
+- Blacklist file name: `brefer.txt`
+
+Each line is a domain. Subdomains are blocked too.
+
+Both `Referer` and `Origin` headers are checked. Requests without these headers are allowed.
+
+Example:
+
+```text
+example.com
+# comment
+```
+
 ## Torznab
 
 TorrServer can talk to **Torznab** indexers so you can search for torrents from tools like **Jackett** and **Prowlarr**, including searching several configured indexers at once.

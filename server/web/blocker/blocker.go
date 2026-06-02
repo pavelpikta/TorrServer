@@ -29,11 +29,32 @@ func Blocker() gin.HandlerFunc {
 	buf, _ = os.ReadFile(name)
 	whiteIpList := scanBuf(buf)
 
-	if blackIpList.NumRanges() == 0 && whiteIpList.NumRanges() == 0 {
+	name = filepath.Join(settings.Path, "brefer.txt")
+	buf, _ = os.ReadFile(name)
+	blockedReferers := blockedReferersFromFile(buf)
+
+	ipBlockingEnabled := blackIpList.NumRanges() > 0 || whiteIpList.NumRanges() > 0
+	refererBlockingEnabled := len(blockedReferers) > 0
+
+	if !ipBlockingEnabled && !refererBlockingEnabled {
 		return emptyFN
 	}
 
 	return func(c *gin.Context) {
+		if refererBlockingEnabled {
+			if host, blocked := isBlockedReferer(c.GetHeader("Referer"), c.GetHeader("Origin"), blockedReferers); blocked {
+				log.WebLogln("Block referer:", host)
+				c.String(http.StatusTeapot, "Banned")
+				c.Abort()
+				return
+			}
+		}
+
+		if !ipBlockingEnabled {
+			c.Next()
+			return
+		}
+
 		arr := strings.Split(c.Request.RemoteAddr, ":")
 		if len(arr) > 0 {
 			ip := net.ParseIP(arr[0])
