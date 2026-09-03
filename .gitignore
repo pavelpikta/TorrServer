@@ -40,3 +40,9 @@ toolchains/
 !/server/gstreamer/gst-libs/
 !/server/gstreamer/gst-libs/**/
 !/server/gstreamer/gst-libs/**
+
+# iOS sample
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
