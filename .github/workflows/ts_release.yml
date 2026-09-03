@@ -244,11 +244,54 @@ jobs:
           name: binaries-appimage-${{ matrix.arch_name }}
           path: ${{ github.workspace }}/dist-appimage/*.AppImage
 
+  build-ios:
+    name: Build iOS XCFramework
+    runs-on: macos-15
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
+      XCODE_VERSION: "16.0"
+      IOS_VERSION_MIN: "14.0"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version (${{ env.XCODE_VERSION }})
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set version from tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Build TorrServerKit.xcframework
+        run: |
+          chmod +x build-ios.sh
+          ./build-ios.sh
+
+      - name: Upload iOS XCFramework Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-ios
+          path: ${{ github.workspace }}/dist/TorrServer-ios-TorrServerKit.xcframework.zip
+          if-no-files-found: error
+
   release:
     needs:
       - build
       - build-gst
       - build-appimage
+      - build-ios
     runs-on: ubuntu-latest
     permissions:
       contents: write
