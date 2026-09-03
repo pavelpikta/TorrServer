@@ -246,28 +246,28 @@ jobs:
 
   build-ios:
     name: Build iOS XCFramework
-    runs-on: macos-15
+    runs-on: macos-26
     env:
       NODE_OPTIONS: --openssl-legacy-provider
-      XCODE_VERSION: "16.0"
+      XCODE_VERSION: "26.6"
       IOS_VERSION_MIN: "18.0"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Select Xcode Version (${{ env.XCODE_VERSION }})
-        uses: maxim-lobanov/setup-xcode@v1
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: stable
           cache: true
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20
 
@@ -280,7 +280,7 @@ jobs:
           ./build-ios.sh
 
       - name: Upload iOS XCFramework Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binaries-ios
           path: ${{ github.workspace }}/dist/TorrServer-ios-TorrServerKit.xcframework.zip
@@ -297,7 +297,7 @@ jobs:
       contents: write
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ./all-dist
           merge-multiple: true
