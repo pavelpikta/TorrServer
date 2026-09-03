@@ -14,7 +14,7 @@ fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="${ROOT}/dist"
 GOBIN="${GOBIN:-go}"
-IOS_VERSION_MIN="${IOS_VERSION_MIN:-14.0}"
+IOS_VERSION_MIN="${IOS_VERSION_MIN:-18.0}"
 export NODE_OPTIONS="${NODE_OPTIONS:---openssl-legacy-provider}"
 
 if [[ -z "${VERSION:-}" && -f "${ROOT}/server/version/version.go" ]]; then

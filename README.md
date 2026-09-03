@@ -366,7 +366,7 @@ To build an Android server you will need the Android Toolchain.
 iOS cannot run TorrServer as a subprocess. Releases include an in-process XCFramework built with `gomobile bind`:
 
 - Asset: `TorrServer-ios-TorrServerKit.xcframework.zip`
-- Minimum iOS: **14.0**
+- Minimum iOS: **18.0**
 - Slices: `ios-arm64` (device), `ios-arm64-simulator`, `ios-amd64-simulator`
 
 Build on macOS with Xcode:

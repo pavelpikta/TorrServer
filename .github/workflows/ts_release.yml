@@ -250,7 +250,7 @@ jobs:
     env:
       NODE_OPTIONS: --openssl-legacy-provider
       XCODE_VERSION: "16.0"
-      IOS_VERSION_MIN: "14.0"
+      IOS_VERSION_MIN: "18.0"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
