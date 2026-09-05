@@ -11,6 +11,27 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
   exit 1
 fi
 
+# gomobile needs full Xcode (not Command Line Tools). Prefer DEVELOPER_DIR if set;
+# otherwise switch to Xcode.app when xcode-select points at CLT.
+if [[ -z "${DEVELOPER_DIR:-}" ]]; then
+  active="$(xcode-select -p 2>/dev/null || true)"
+  if [[ "${active}" == *"/CommandLineTools"* ]] || ! xcodebuild -version &>/dev/null; then
+    if [[ -d "/Applications/Xcode.app/Contents/Developer" ]]; then
+      export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+      echo "=== Using DEVELOPER_DIR=${DEVELOPER_DIR} ==="
+    else
+      echo "Full Xcode is required (xcode-select currently: ${active:-unknown})." >&2
+      echo "Install Xcode, then run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
+      exit 1
+    fi
+  fi
+fi
+if ! xcodebuild -version &>/dev/null; then
+  echo "xcodebuild is not usable. Point xcode-select at Xcode.app:" >&2
+  echo "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
+  exit 1
+fi
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="${ROOT}/dist"
 GOBIN="${GOBIN:-go}"

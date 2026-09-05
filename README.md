@@ -372,12 +372,8 @@ iOS cannot run TorrServer as a subprocess. Releases include an in-process XCFram
 Build on macOS with Xcode:
 
 ```bash
-./build-ios.sh          # TorrServerKit.xcframework
-./ios/build.sh          # kit (if missing) + sample app with web UI
-./ios/lint.sh           # sample Info.plist + xcodebuild analyze
+./build-ios.sh
 ```
-
-The sample app (`ios/TorrServerKitSample`) starts the in-process server and shows the normal TorrServer web UI in a `WKWebView` at `http://127.0.0.1:8090`.
 
 Link `TorrServerKit.xcframework` into the host app and call the gomobile API:
 
